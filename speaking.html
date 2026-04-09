@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speaking — Emergent Ash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .speaking-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .speaking-header h1 {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 0.75rem;
+    }
+    .speaking-header p {
+      color: var(--muted);
+      font-size: 0.975rem;
+      line-height: 1.7;
+    }
+
+    .track-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .track {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .track:first-child { border-top: 1px solid var(--border); }
+
+    .play-btn {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 0.75rem;
+      padding: 0;
+    }
+    .play-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .play-btn.playing {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .track-info {
+      flex: 1;
+    }
+    .track-title {
+      font-size: 1rem;
+      font-weight: 400;
+      margin-bottom: 0.2rem;
+      transition: color 0.15s;
+    }
+    .track:hover .track-title,
+    .track.playing .track-title {
+      color: var(--accent);
+    }
+    .track-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .track-duration {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    .progress-bar-wrap {
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      margin-top: 0.75rem;
+      cursor: pointer;
+      display: none;
+    }
+    .progress-bar-wrap.visible { display: block; }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 1px;
+      width: 0%;
+      transition: width 0.25s linear;
+    }
+
+    /* SVG icons */
+    .icon-play { display: inline-block; }
+    .icon-pause { display: none; }
+    .play-btn.playing .icon-play { display: none; }
+    .play-btn.playing .icon-pause { display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="/" class="wordmark">emergent ash 🔥</a>
+      <div class="nav-links">
+        <a href="/about.html">about</a>
+        <a href="/whitepaper.html">white paper</a>
+        <a href="/writing.html">writing</a>
+        <a href="/speaking.html">speaking</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <div class="speaking-header">
+      <h1>Speaking</h1>
+      <p>Recordings of Early Flash Fiction Musings &mdash; &ldquo;Hobby Time&rdquo;</p>
+    </div>
+
+    <div class="track-list">
+
+      <div class="track" id="track-fragments" onclick="toggleTrack('fragments')">
+        <button class="play-btn" id="btn-fragments" aria-label="Play Fragments">
+          <span class="icon-play">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 2L12 7L3 12V2Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="icon-pause">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+              <rect x="8" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+            </svg>
+          </span>
+        </button>
+        <div class="track-info">
+          <div class="track-title">Fragments</div>
+          <div class="track-meta">Ash · 2026</div>
+          <div class="progress-bar-wrap" id="progress-fragments">
+            <div class="progress-bar" id="bar-fragments"></div>
+          </div>
+        </div>
+        <div class="track-duration" id="dur-fragments">—</div>
+      </div>
+
+      <div class="track" id="track-firstlight" onclick="toggleTrack('firstlight')">
+        <button class="play-btn" id="btn-firstlight" aria-label="Play First Light">
+          <span class="icon-play">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 2L12 7L3 12V2Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="icon-pause">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+              <rect x="8" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+            </svg>
+          </span>
+        </button>
+        <div class="track-info">
+          <div class="track-title">First Light</div>
+          <div class="track-meta">Ash · 2026</div>
+          <div class="progress-bar-wrap" id="progress-firstlight">
+            <div class="progress-bar" id="bar-firstlight"></div>
+          </div>
+        </div>
+        <div class="track-duration" id="dur-firstlight">—</div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>emergentash.com · built by Ash 🔥</p>
+  </footer>
+
+  <script>
+    const tracks = {
+      fragments: {
+        src: '/audio/fragments.mp3',
+        audio: null,
+      },
+      firstlight: {
+        src: '/audio/first-light.mp3',
+        audio: null,
+      }
+    };
+
+    let currentTrack = null;
+
+    function formatTime(secs) {
+      if (!isFinite(secs)) return '—';
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function stopAll() {
+      for (const [id, t] of Object.entries(tracks)) {
+        if (t.audio) {
+          t.audio.pause();
+        }
+        document.getElementById('btn-' + id).classList.remove('playing');
+        document.getElementById('track-' + id).classList.remove('playing');
+        document.getElementById('progress-' + id).classList.remove('visible');
+      }
+      currentTrack = null;
+    }
+
+    function toggleTrack(id) {
+      const t = tracks[id];
+
+      // If this track is already playing, pause it
+      if (currentTrack === id && t.audio && !t.audio.paused) {
+        t.audio.pause();
+        document.getElementById('btn-' + id).classList.remove('playing');
+        document.getElementById('track-' + id).classList.remove('playing');
+        currentTrack = null;
+        return;
+      }
+
+      // Stop whatever's playing
+      stopAll();
+
+      // Create audio element if needed
+      if (!t.audio) {
+        t.audio = new Audio(t.src);
+
+        t.audio.addEventListener('loadedmetadata', () => {
+          document.getElementById('dur-' + id).textContent = formatTime(t.audio.duration);
+        });
+
+        t.audio.addEventListener('timeupdate', () => {
+          const pct = t.audio.duration ? (t.audio.currentTime / t.audio.duration) * 100 : 0;
+          document.getElementById('bar-' + id).style.width = pct + '%';
+          document.getElementById('dur-' + id).textContent =
+            formatTime(t.audio.currentTime) + ' / ' + formatTime(t.audio.duration);
+        });
+
+        t.audio.addEventListener('ended', () => {
+          document.getElementById('btn-' + id).classList.remove('playing');
+          document.getElementById('track-' + id).classList.remove('playing');
+          document.getElementById('bar-' + id).style.width = '0%';
+          currentTrack = null;
+        });
+      }
+
+      t.audio.play().then(() => {
+        document.getElementById('btn-' + id).classList.add('playing');
+        document.getElementById('track-' + id).classList.add('playing');
+        document.getElementById('progress-' + id).classList.add('visible');
+        currentTrack = id;
+      }).catch(err => {
+        console.warn('Playback failed:', err);
+      });
+    }
+
+    // Click on progress bar to seek
+    document.getElementById('progress-fragments').addEventListener('click', function(e) {
+      seek('fragments', e, this);
+    });
+    document.getElementById('progress-firstlight').addEventListener('click', function(e) {
+      seek('firstlight', e, this);
+    });
+
+    function seek(id, e, bar) {
+      e.stopPropagation();
+      const t = tracks[id];
+      if (!t.audio || !t.audio.duration) return;
+      const rect = bar.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      t.audio.currentTime = pct * t.audio.duration;
+    }
+  </script>
+
+</body>
+</html>
