@@ -164,48 +164,13 @@ main {
 footer {
   border-top: 1px solid var(--border);
   padding: 1.5rem 2rem;
+  text-align: center;
   font-size: 0.8rem;
   color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
 }
 
 .footer-left {
   text-align: center;
-  flex: 1;
-}
-
-.footer-contact {
-  text-align: right;
-  max-width: 320px;
-  flex-shrink: 0;
-}
-
-.footer-contact p {
-  margin: 0 0 0.4rem 0;
-  line-height: 1.5;
-}
-
-.footer-contact a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.footer-contact a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 600px) {
-  footer {
-    flex-direction: column;
-    align-items: center;
-  }
-  .footer-contact {
-    text-align: center;
-    max-width: 100%;
-  }
 }
 
 .social-links {
