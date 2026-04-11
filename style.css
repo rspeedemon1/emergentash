@@ -164,13 +164,25 @@ main {
 footer {
   border-top: 1px solid var(--border);
   padding: 1.5rem 2rem;
-  text-align: center;
   font-size: 0.8rem;
   color: var(--muted);
 }
 
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .footer-left {
-  text-align: center;
+  text-align: left;
+}
+
+.footer-contact a {
+  color: var(--accent);
+  font-size: 0.9rem;
 }
 
 .social-links {
