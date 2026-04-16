@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ash Weather Loop — Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: #f7fafc; }
+    .subtitle { color: #718096; font-size: 0.875rem; margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; }
+    .card .label { font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .card .value { font-size: 2rem; font-weight: 700; color: #f7fafc; }
+    .card .sub { font-size: 0.8rem; color: #4a5568; margin-top: 4px; }
+    .green { color: #48bb78 !important; }
+    .red { color: #fc8181 !important; }
+    .yellow { color: #ecc94b !important; }
+    .chart-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .chart-card h2 { font-size: 1rem; font-weight: 600; color: #a0aec0; margin-bottom: 16px; }
+    .chart-wrap { position: relative; height: 280px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 10px 12px; color: #718096; font-weight: 500; border-bottom: 1px solid #2d3748; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 10px 12px; border-bottom: 1px solid #1e2533; }
+    tr:last-child td { border-bottom: none; }
+    .pos { color: #fc8181; }
+    .neg { color: #48bb78; }
+    .pending { color: #718096; font-style: italic; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+    .badge-green { background: #1c4532; color: #48bb78; }
+    .badge-red { background: #3d1f1f; color: #fc8181; }
+    .badge-gray { background: #2d3748; color: #718096; }
+    footer { color: #4a5568; font-size: 0.75rem; margin-top: 16px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<h1>🌤 Ash Weather Loop</h1>
+<p class="subtitle">Orlando, FL · High temperature predictions · Generated 2026-04-16</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="label">Model MAE</div>
+    <div class="value green">3.89°F</div>
+    <div class="sub">Training (1566 samples)</div>
+  </div>
+  <div class="card">
+    <div class="label">Persistence MAE</div>
+    <div class="value">3.42°F</div>
+    <div class="sub">Baseline: tomorrow = today</div>
+  </div>
+  <div class="card">
+    <div class="label">Beat Baseline</div>
+    <div class="value red">
+      ❌ No
+    </div>
+    <div class="sub">2 live predictions scored</div>
+  </div>
+  <div class="card">
+    <div class="label">Next Prediction</div>
+    <div class="value yellow">88.7°F</div>
+    <div class="sub">For 2026-04-17</div>
+  </div>
+  <div class="card">
+    <div class="label">Training Data</div>
+    <div class="value">1567</div>
+    <div class="sub">Days of weather history</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <h2>Predicted vs Actual High Temperature</h2>
+  <div class="chart-wrap"><canvas id="predChart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <h2>Prediction Error Over Time</h2>
+  <div class="chart-wrap"><canvas id="errorChart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <h2>Predictions Log</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>For Date</th>
+        <th>Predicted High</th>
+        <th>Actual High</th>
+        <th>Error</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2026-04-17</td>
+        <td>88.7°F</td>
+        <td><span class="pending">awaiting actual</span></td>
+        <td class="">—</td>
+        <td><span class="badge badge-gray">Pending</span></td>
+      </tr>
+      <tr>
+        <td>2026-04-16</td>
+        <td>81.8°F</td>
+        <td>83.59°F</td>
+        <td class="pos">+1.8°F</td>
+        <td><span class="badge badge-green">Scored</span></td>
+      </tr>
+      <tr>
+        <td>2026-04-15</td>
+        <td>88.6°F</td>
+        <td>72.7°F</td>
+        <td class="neg">-15.9°F</td>
+        <td><span class="badge badge-green">Scored</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="chart-card">
+  <h2>Recent Weather Data (Orlando)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>High</th>
+        <th>Low</th>
+        <th>Wind (mph)</th>
+        <th>Pressure (hPa)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2026-04-16</td>
+        <td>83.59°F</td>
+        <td>83.59°F</td>
+        <td>7.99</td>
+        <td>1017</td>
+      </tr>
+      <tr>
+        <td>2026-04-15</td>
+        <td>72.7°F</td>
+        <td>72.7°F</td>
+        <td>8.08</td>
+        <td>1022</td>
+      </tr>
+      <tr>
+        <td>2026-04-14</td>
+        <td>82.53°F</td>
+        <td>82.53°F</td>
+        <td>11.25</td>
+        <td>1022</td>
+      </tr>
+      <tr>
+        <td>2026-02-12</td>
+        <td>75.9°F</td>
+        <td>55.9°F</td>
+        <td>4.4</td>
+        <td>1020.0</td>
+      </tr>
+      <tr>
+        <td>2026-02-11</td>
+        <td>77.4°F</td>
+        <td>51.6°F</td>
+        <td>6.7</td>
+        <td>1021.7</td>
+      </tr>
+      <tr>
+        <td>2026-02-10</td>
+        <td>76.8°F</td>
+        <td>50.0°F</td>
+        <td>5.0</td>
+        <td>1023.9</td>
+      </tr>
+      <tr>
+        <td>2026-02-09</td>
+        <td>73.4°F</td>
+        <td>45.5°F</td>
+        <td>3.4</td>
+        <td>1024.5</td>
+      </tr>
+      <tr>
+        <td>2026-02-08</td>
+        <td>69.8°F</td>
+        <td>44.6°F</td>
+        <td>4.1</td>
+        <td>1024.3</td>
+      </tr>
+      <tr>
+        <td>2026-02-07</td>
+        <td>71.6°F</td>
+        <td>50.0°F</td>
+        <td>8.5</td>
+        <td>1018.5</td>
+      </tr>
+      <tr>
+        <td>2026-02-06</td>
+        <td>62.6°F</td>
+        <td>37.4°F</td>
+        <td>11.4</td>
+        <td>1017.6</td>
+      </tr>
+      <tr>
+        <td>2026-02-05</td>
+        <td>59.0°F</td>
+        <td>42.8°F</td>
+        <td>10.5</td>
+        <td>1015.7</td>
+      </tr>
+      <tr>
+        <td>2026-02-04</td>
+        <td>71.6°F</td>
+        <td>39.2°F</td>
+        <td>5.4</td>
+        <td>1022.0</td>
+      </tr>
+      <tr>
+        <td>2026-02-03</td>
+        <td>62.6°F</td>
+        <td>35.6°F</td>
+        <td>1.8</td>
+        <td>1027.4</td>
+      </tr>
+      <tr>
+        <td>2026-02-02</td>
+        <td>53.6°F</td>
+        <td>32.0°F</td>
+        <td>7.6</td>
+        <td>1028.0</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>Ash Weather Loop · Model: Linear Regression · Ground truth: meteostat/NOAA · Features: temp_max, temp_min, wind_speed, pressure, sin_day, cos_day</footer>
+
+<script>
+const chartData = {"labels": ["2026-04-15", "2026-04-16"], "predicted": [88.6, 81.8], "actual": [72.7, 83.59], "errors": [-15.9, 1.8]};
+
+if (chartData.labels.length > 0) {
+  const ctx1 = document.getElementById('predChart').getContext('2d');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: chartData.labels,
+      datasets: [
+        {
+          label: 'Predicted High (°F)',
+          data: chartData.predicted,
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102,126,234,0.1)',
+          tension: 0.3,
+          pointRadius: 4,
+        },
+        {
+          label: 'Actual High (°F)',
+          data: chartData.actual,
+          borderColor: '#48bb78',
+          backgroundColor: 'rgba(72,187,120,0.1)',
+          tension: 0.3,
+          pointRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#a0aec0' } } },
+      scales: {
+        x: { ticks: { color: '#718096' }, grid: { color: '#2d3748' } },
+        y: { ticks: { color: '#718096', callback: v => v + '°F' }, grid: { color: '#2d3748' } }
+      }
+    }
+  });
+
+  const ctx2 = document.getElementById('errorChart').getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [{
+        label: 'Error (°F)',
+        data: chartData.errors,
+        backgroundColor: chartData.errors.map(e => e > 0 ? 'rgba(252,129,129,0.7)' : 'rgba(72,187,120,0.7)'),
+        borderColor: chartData.errors.map(e => e > 0 ? '#fc8181' : '#48bb78'),
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#a0aec0' } },
+        tooltip: { callbacks: { label: ctx => (ctx.raw > 0 ? '+' : '') + ctx.raw.toFixed(1) + '°F' } }
+      },
+      scales: {
+        x: { ticks: { color: '#718096' }, grid: { color: '#2d3748' } },
+        y: { ticks: { color: '#718096', callback: v => (v > 0 ? '+' : '') + v + '°F' }, grid: { color: '#2d3748' }, suggestedMin: -10, suggestedMax: 10 }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
