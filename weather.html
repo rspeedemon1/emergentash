@@ -38,13 +38,13 @@
 <body>
 
 <h1>🌤 Ash Weather Loop</h1>
-<p class="subtitle">Orlando, FL · High temperature predictions · Generated 2026-04-20</p>
+<p class="subtitle">Orlando, FL · High temperature predictions · Generated 2026-04-21</p>
 
 <div class="grid">
   <div class="card">
     <div class="label">Model MAE</div>
     <div class="value green">3.86°F</div>
-    <div class="sub">Training (1570 samples)</div>
+    <div class="sub">Training (1571 samples)</div>
   </div>
   <div class="card">
     <div class="label">Persistence MAE</div>
@@ -56,16 +56,16 @@
     <div class="value red">
       ❌ No
     </div>
-    <div class="sub">6 live predictions scored</div>
+    <div class="sub">7 live predictions scored</div>
   </div>
   <div class="card">
     <div class="label">Next Prediction</div>
-    <div class="value yellow">83.2°F</div>
-    <div class="sub">For 2026-04-21</div>
+    <div class="value yellow">85.0°F</div>
+    <div class="sub">For 2026-04-22</div>
   </div>
   <div class="card">
     <div class="label">Training Data</div>
-    <div class="value">1571</div>
+    <div class="value">1572</div>
     <div class="sub">Days of weather history</div>
   </div>
 </div>
@@ -94,11 +94,18 @@
     </thead>
     <tbody>
       <tr>
-        <td>2026-04-21</td>
-        <td>83.2°F</td>
+        <td>2026-04-22</td>
+        <td>85.0°F</td>
         <td><span class="pending">awaiting actual</span></td>
         <td class="">—</td>
         <td><span class="badge badge-gray">Pending</span></td>
+      </tr>
+      <tr>
+        <td>2026-04-21</td>
+        <td>83.2°F</td>
+        <td>78.96°F</td>
+        <td class="neg">-4.2°F</td>
+        <td><span class="badge badge-green">Scored</span></td>
       </tr>
       <tr>
         <td>2026-04-20</td>
@@ -161,6 +168,15 @@
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td>2026-04-21</td>
+        <td>78.96°F</td>
+        <td>78.96°F</td>
+        <td>35</td>
+        <td>0</td>
+        <td>14.72</td>
+        <td>1023</td>
+      </tr>
       <tr>
         <td>2026-04-20</td>
         <td>77.65°F</td>
@@ -278,15 +294,6 @@
         <td>15.2</td>
         <td>1019.3</td>
       </tr>
-      <tr>
-        <td>2026-04-07</td>
-        <td>72.0°F</td>
-        <td>64.0°F</td>
-        <td>—</td>
-        <td>—</td>
-        <td>15.2</td>
-        <td>1018.3</td>
-      </tr>
     </tbody>
   </table>
 </div>
@@ -294,7 +301,7 @@
 <footer>Ash Weather Loop · Model: Linear Regression · Ground truth: meteostat/NOAA · Features: temp_max, temp_min, wind_speed, pressure, sin_day, cos_day</footer>
 
 <script>
-const chartData = {"labels": ["2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20"], "predicted": [88.6, 81.8, 88.7, 91.7, 91.2, 88.3], "actual": [72.7, 83.59, 86.43, 87.31, 84.2, 77.65], "errors": [-15.9, 1.8, -2.3, -4.4, -7.0, -10.6]};
+const chartData = {"labels": ["2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21"], "predicted": [88.6, 81.8, 88.7, 91.7, 91.2, 88.3, 83.2], "actual": [72.7, 83.59, 86.43, 87.31, 84.2, 77.65, 78.96], "errors": [-15.9, 1.8, -2.3, -4.4, -7.0, -10.6, -4.2]};
 
 if (chartData.labels.length > 0) {
   const ctx1 = document.getElementById('predChart').getContext('2d');
