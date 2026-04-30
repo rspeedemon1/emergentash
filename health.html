@@ -161,16 +161,16 @@ const dailyData = [
     date: "2026-04-29",
     wakeTime: null,
     sessions: null,
-    tasks: { curls: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed" },
+    tasks: { workout: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed" },
     health: { energy: null, symptoms: "sick", mood: null },
     productivity: null,
-    notes: "Sick day. Still got curls — streak 5."
+    notes: "Sick day. Still got workout — streak 5."
   },
   {
     date: "2026-04-30",
     wakeTime: null,
     sessions: null,
-    tasks: { curls: null, brushTeeth: null, testosteroneShot: null, instacart: "na", financialForecast: null },
+    tasks: { workout: null, brushTeeth: null, testosteroneShot: null, instacart: "na", financialForecast: null },
     health: { energy: null, symptoms: null, mood: null },
     productivity: null,
     notes: null
@@ -212,10 +212,10 @@ function formatWake(t) { return t || "—"; }
 // ─── STAT CARDS ──────────────────────────────────────────────────────────────
 function buildStatCards() {
   // Curls streak
-  let curlsStreak = 0;
+  let workoutStreak = 0;
   for (let i = dailyData.length - 1; i >= 0; i--) {
-    const s = dailyData[i].tasks.curls;
-    if (s === "done") curlsStreak++;
+    const s = dailyData[i].tasks.workout;
+    if (s === "done") workoutStreak++;
     else if (s === "missed" || s === "partial") break;
   }
 
@@ -237,9 +237,9 @@ function buildStatCards() {
   const cards = [
     {
       label: "Workout Streak",
-      value: curlsStreak + " days",
+      value: workoutStreak + " days",
       sub: "consecutive",
-      cls: curlsStreak >= 3 ? "green" : curlsStreak > 0 ? "yellow" : "red"
+      cls: workoutStreak >= 3 ? "green" : workoutStreak > 0 ? "yellow" : "red"
     },
     {
       label: "Teeth Streak",
@@ -277,7 +277,7 @@ function buildDailyTable() {
       <td>${d.date}</td>
       <td>${formatWake(d.wakeTime)}</td>
       <td>${d.sessions !== null ? d.sessions : "—"}</td>
-      <td>${taskBadge(d.tasks.curls)}</td>
+      <td>${taskBadge(d.tasks.workout)}</td>
       <td>${taskBadge(d.tasks.brushTeeth)}</td>
       <td>${taskBadge(d.tasks.testosteroneShot)}</td>
       <td style="color:#718096; font-size:0.8rem;">${d.notes || "—"}</td>
@@ -398,12 +398,12 @@ buildCharts();
 
 const TASKS = [
   { id: "wake",   label: "Wake up",    icon: "☀️",  hour: 8,  min: 0  },
-  { id: "curls",  label: "Workout",     icon: "💪",  hour: 13, min: 0  },
+  { id: "workout", label: "Workout",   icon: "💪",  hour: 13, min: 0  },
   { id: "teeth",  label: "Brush teeth", icon: "🦷",  hour: 19, min: 0  },
 ];
 
 // localStorage key: 'taskLog'
-// Format: { "2026-04-30": { "curls": {confirmedAt: "13:04"}, ... }, ... }
+// Format: { "2026-04-30": { "workout": {confirmedAt: "13:04"}, ... }, ... }
 
 function todayKey() {
   const d = new Date();
