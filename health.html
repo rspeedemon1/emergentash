@@ -26,7 +26,7 @@
     #widget-confirm { background: #276749; color: #f7fafc; border: none; border-radius: 8px; padding: 5px 0; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; width: 100%; }
     #widget-confirm:hover { background: #2f855a; }
 
-    /* ── Layout ──────────────────────────────────────────────────── */
+    /* ── Layout ─────────────────────────────────────────────────── */
     h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: #f7fafc; }
     .subtitle { color: #718096; font-size: 0.875rem; margin-bottom: 24px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -38,14 +38,33 @@
     .yellow { color: #ecc94b !important; } .muted { color: #718096 !important; }
 
     /* ── Chart Cards ────────────────────────────────────────────── */
-    .chart-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .chart-card {
+      background: #1a202c; border: 1px solid #2d3748; border-radius: 12px;
+      padding: 24px; margin-bottom: 24px; position: relative;
+      transition: border-color 0.15s, opacity 0.15s;
+    }
+    .chart-card.dragging { opacity: 0.35; border-color: #667eea; }
+    .chart-card.drag-over-top    { border-top: 2px solid #667eea; }
+    .chart-card.drag-over-bottom { border-bottom: 2px solid #667eea; }
+
     .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .drag-handle {
+      cursor: grab; padding: 2px 6px 2px 0; color: #2d3748;
+      font-size: 1rem; line-height: 1; user-select: none; flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .drag-handle:hover { color: #4a5568; }
+    .chart-card:active .drag-handle { cursor: grabbing; }
+    .chart-header-left { flex: 1; min-width: 0; }
     .chart-header-left h2 { font-size: 1rem; font-weight: 600; color: #a0aec0; margin-bottom: 4px; }
     .section-note { font-size: 0.8rem; color: #4a5568; font-style: italic; }
-    .range-btns { display: flex; gap: 4px; flex-shrink: 0; margin-left: 12px; padding-top: 2px; }
+    .chart-controls { display: flex; gap: 4px; align-items: center; flex-shrink: 0; margin-left: 12px; padding-top: 2px; }
+    .range-btns { display: flex; gap: 4px; }
     .range-btn { background: #2d3748; color: #718096; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
     .range-btn:hover { background: #3d4a5c; color: #a0aec0; }
     .range-btn.active { background: #4a5568; color: #e2e8f0; }
+    .close-btn { background: none; border: none; color: #4a5568; font-size: 0.85rem; cursor: pointer; padding: 4px 6px; border-radius: 4px; line-height: 1; transition: color 0.15s, background 0.15s; margin-left: 4px; }
+    .close-btn:hover { color: #fc8181; background: #3d1f1f; }
     .chart-wrap { position: relative; height: 240px; }
 
     /* ── Table ───────────────────────────────────────────────────── */
@@ -61,14 +80,6 @@
     .badge-red { background: #3d1f1f; color: #fc8181; }
     .badge-yellow { background: #3d3419; color: #ecc94b; }
     .badge-gray { background: #2d3748; color: #718096; }
-    .streak-bar { display: flex; gap: 4px; align-items: center; }
-    .streak-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-green { background: #48bb78; } .dot-red { background: #fc8181; }
-    .dot-gray { background: #2d3748; } .dot-yellow { background: #ecc94b; }
-
-    /* ── Task popup chart ───────────────────────────────────────── */
-    #taskChartCard { display: none; border-color: #4a5568; }
-    #taskChartCard .chart-header-left h2 { color: #667eea; }
 
     footer { color: #4a5568; font-size: 0.75rem; margin-top: 16px; text-align: center; }
     @media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -92,84 +103,90 @@
 
 <div class="grid" id="statCards"></div>
 
-<div class="chart-card">
-  <div class="chart-header">
-    <div class="chart-header-left">
-      <h2>Task Completion</h2>
-      <p class="section-note">Percentage of trackable tasks completed each day</p>
-    </div>
-    <div class="range-btns" id="completionRangeBtns">
-      <button class="range-btn" onclick="setRange('completion',7)" data-days="7">7d</button>
-      <button class="range-btn active" onclick="setRange('completion',30)" data-days="30">30d</button>
-      <button class="range-btn" onclick="setRange('completion',365)" data-days="365">1yr</button>
-    </div>
-  </div>
-  <div class="chart-wrap"><canvas id="completionChart"></canvas></div>
-</div>
+<!-- Dashboard: all chart cards live here, drag to reorder -->
+<div id="dashboard">
 
-<div class="chart-card">
-  <div class="chart-header">
-    <div class="chart-header-left">
-      <h2>Wake Time</h2>
-      <p class="section-note">Time out of bed each morning</p>
+  <div class="chart-card" id="card-completion" draggable="true">
+    <div class="chart-header">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="chart-header-left">
+        <h2>Task Completion</h2>
+        <p class="section-note">Percentage of trackable tasks completed each day</p>
+      </div>
+      <div class="chart-controls">
+        <div class="range-btns" id="completionRangeBtns">
+          <button class="range-btn" onclick="setRange('completion',7)" data-days="7">7d</button>
+          <button class="range-btn active" onclick="setRange('completion',30)" data-days="30">30d</button>
+          <button class="range-btn" onclick="setRange('completion',365)" data-days="365">1yr</button>
+        </div>
+      </div>
     </div>
-    <div class="range-btns" id="wakeRangeBtns">
-      <button class="range-btn" onclick="setRange('wake',7)" data-days="7">7d</button>
-      <button class="range-btn active" onclick="setRange('wake',30)" data-days="30">30d</button>
-      <button class="range-btn" onclick="setRange('wake',365)" data-days="365">1yr</button>
-    </div>
+    <div class="chart-wrap"><canvas id="completionChart"></canvas></div>
   </div>
-  <div class="chart-wrap"><canvas id="wakeChart"></canvas></div>
-</div>
 
-<div class="chart-card">
-  <div class="chart-header">
-    <div class="chart-header-left">
-      <h2>Sessions Per Day</h2>
-      <p class="section-note">Main work sessions completed (5 PM → 5 PM window)</p>
+  <div class="chart-card" id="card-wake" draggable="true">
+    <div class="chart-header">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="chart-header-left">
+        <h2>Wake Time</h2>
+        <p class="section-note">Time out of bed each morning</p>
+      </div>
+      <div class="chart-controls">
+        <div class="range-btns" id="wakeRangeBtns">
+          <button class="range-btn" onclick="setRange('wake',7)" data-days="7">7d</button>
+          <button class="range-btn active" onclick="setRange('wake',30)" data-days="30">30d</button>
+          <button class="range-btn" onclick="setRange('wake',365)" data-days="365">1yr</button>
+        </div>
+      </div>
     </div>
-    <div class="range-btns" id="sessionsRangeBtns">
-      <button class="range-btn" onclick="setRange('sessions',7)" data-days="7">7d</button>
-      <button class="range-btn active" onclick="setRange('sessions',30)" data-days="30">30d</button>
-      <button class="range-btn" onclick="setRange('sessions',365)" data-days="365">1yr</button>
-    </div>
+    <div class="chart-wrap"><canvas id="wakeChart"></canvas></div>
   </div>
-  <div class="chart-wrap"><canvas id="sessionsChart"></canvas></div>
-</div>
 
-<div class="chart-card">
-  <h2 style="font-size:1rem; font-weight:600; color:#a0aec0; margin-bottom:16px;">Recent Days</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Wake</th>
-        <th>Sessions</th>
-        <th class="clickable" data-task="workout" data-label="Workout" onclick="toggleTaskChart(this)">Workout ↗</th>
-        <th class="clickable" data-task="brushTeeth" data-label="Brush Teeth" onclick="toggleTaskChart(this)">Teeth ↗</th>
-        <th class="clickable" data-task="testosteroneShot" data-label="TRT" onclick="toggleTaskChart(this)">TRT ↗</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
-    <tbody id="dailyTable"></tbody>
-  </table>
-</div>
-
-<!-- Task compliance popup chart (shown on column click) -->
-<div class="chart-card" id="taskChartCard">
-  <div class="chart-header">
-    <div class="chart-header-left">
-      <h2 id="taskChartTitle">Task Compliance</h2>
-      <p class="section-note">Done / Missed per day — click column header again to close</p>
+  <div class="chart-card" id="card-sessions" draggable="true">
+    <div class="chart-header">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="chart-header-left">
+        <h2>Sessions Per Day</h2>
+        <p class="section-note">Main work sessions completed (5 PM → 5 PM window)</p>
+      </div>
+      <div class="chart-controls">
+        <div class="range-btns" id="sessionsRangeBtns">
+          <button class="range-btn" onclick="setRange('sessions',7)" data-days="7">7d</button>
+          <button class="range-btn active" onclick="setRange('sessions',30)" data-days="30">30d</button>
+          <button class="range-btn" onclick="setRange('sessions',365)" data-days="365">1yr</button>
+        </div>
+      </div>
     </div>
-    <div class="range-btns" id="taskRangeBtns">
-      <button class="range-btn" onclick="setRange('task',7)" data-days="7">7d</button>
-      <button class="range-btn active" onclick="setRange('task',30)" data-days="30">30d</button>
-      <button class="range-btn" onclick="setRange('task',365)" data-days="365">1yr</button>
-    </div>
+    <div class="chart-wrap"><canvas id="sessionsChart"></canvas></div>
   </div>
-  <div class="chart-wrap"><canvas id="taskChart"></canvas></div>
-</div>
+
+  <div class="chart-card" id="card-table" draggable="true">
+    <div class="chart-header" style="margin-bottom:16px;">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="chart-header-left">
+        <h2 style="font-size:1rem; font-weight:600; color:#a0aec0;">Recent Days</h2>
+        <p class="section-note">Click a column header to add a compliance chart</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Wake</th>
+          <th>Sessions</th>
+          <th class="clickable" data-task="workout" data-label="Workout" onclick="toggleTaskChart(this)">Workout ↗</th>
+          <th class="clickable" data-task="brushTeeth" data-label="Brush Teeth" onclick="toggleTaskChart(this)">Teeth ↗</th>
+          <th class="clickable" data-task="testosteroneShot" data-label="TRT" onclick="toggleTaskChart(this)">TRT ↗</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="dailyTable"></tbody>
+    </table>
+  </div>
+
+  <!-- Task compliance cards are appended here dynamically -->
+
+</div><!-- #dashboard -->
 
 <footer>Ash Health Tracker · Updated daily at 5 PM review · Data starts April 29, 2026</footer>
 
@@ -177,356 +194,384 @@
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const dailyData = [
   {
-    date: "2026-04-29",
-    wakeTime: null, sessions: null,
+    date: "2026-04-29", wakeTime: null, sessions: null,
     tasks: { workout: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed" },
-    health: { energy: null, symptoms: "sick", mood: null },
-    productivity: null,
+    health: { energy: null, symptoms: "sick", mood: null }, productivity: null,
     notes: "Sick day. Still got workout — streak 5."
   },
   {
-    date: "2026-04-30",
-    wakeTime: null, sessions: null,
+    date: "2026-04-30", wakeTime: null, sessions: null,
     tasks: { workout: null, brushTeeth: null, testosteroneShot: null, instacart: "na", financialForecast: null },
-    health: { energy: null, symptoms: null, mood: null },
-    productivity: null,
-    notes: null
+    health: { energy: null, symptoms: null, mood: null }, productivity: null, notes: null
   }
 ];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-function taskBadge(status) {
-  if (status === "done")    return `<span class="badge badge-green">✓</span>`;
-  if (status === "missed")  return `<span class="badge badge-red">✗</span>`;
-  if (status === "partial") return `<span class="badge badge-yellow">~</span>`;
-  if (status === "na")      return `<span class="badge badge-gray">—</span>`;
+function taskBadge(s) {
+  if (s === "done")    return `<span class="badge badge-green">✓</span>`;
+  if (s === "missed")  return `<span class="badge badge-red">✗</span>`;
+  if (s === "partial") return `<span class="badge badge-yellow">~</span>`;
+  if (s === "na")      return `<span class="badge badge-gray">—</span>`;
   return `<span class="badge badge-gray">?</span>`;
 }
-
 function completionPct(day) {
-  const trackable = Object.entries(day.tasks).filter(([,v]) => v !== "na" && v !== null);
-  if (!trackable.length) return null;
-  return Math.round(trackable.filter(([,v]) => v === "done").length / trackable.length * 100);
+  const t = Object.entries(day.tasks).filter(([,v]) => v !== "na" && v !== null);
+  if (!t.length) return null;
+  return Math.round(t.filter(([,v]) => v === "done").length / t.length * 100);
 }
-
 function wakeToDecimal(t) {
   if (!t) return null;
-  const [h, m] = t.split(":").map(Number);
-  return h + m / 60;
+  const [h,m] = t.split(":").map(Number);
+  return h + m/60;
 }
 function formatWake(t) { return t || "—"; }
-
-function getSlice(days) {
-  return days >= dailyData.length ? dailyData : dailyData.slice(-days);
-}
+function getSlice(days) { return days >= dailyData.length ? dailyData : dailyData.slice(-days); }
 
 // ─── STAT CARDS ───────────────────────────────────────────────────────────────
 function buildStatCards() {
-  let workoutStreak = 0;
-  for (let i = dailyData.length - 1; i >= 0; i--) {
-    const s = dailyData[i].tasks.workout;
-    if (s === "done") workoutStreak++;
-    else if (s === "missed" || s === "partial") break;
+  let wStreak=0, tStreak=0;
+  for (let i=dailyData.length-1;i>=0;i--) {
+    const w=dailyData[i].tasks.workout, t=dailyData[i].tasks.brushTeeth;
+    if (i===dailyData.length-1||wStreak>0) { if(w==="done") wStreak++; else if(w==="missed"||w==="partial") wStreak=wStreak||0; }
+    if (i===dailyData.length-1||tStreak>0) { if(t==="done") tStreak++; else if(t==="missed"||t==="partial") tStreak=tStreak||0; }
   }
-  let teethStreak = 0;
-  for (let i = dailyData.length - 1; i >= 0; i--) {
-    const s = dailyData[i].tasks.brushTeeth;
-    if (s === "done") teethStreak++;
-    else if (s === "missed" || s === "partial") break;
+  // Recalc cleanly
+  wStreak=0; tStreak=0;
+  for (let i=dailyData.length-1;i>=0;i--) {
+    const w=dailyData[i].tasks.workout;
+    if(w==="done") wStreak++; else if(w==="missed"||w==="partial") break;
   }
-  const daysTracked = dailyData.filter(d => Object.values(d.tasks).some(v => v !== null)).length;
-  const recent = dailyData.slice(-7).map(completionPct).filter(v => v !== null);
-  const avgCompletion = recent.length ? Math.round(recent.reduce((a,b)=>a+b,0)/recent.length) : null;
-  const todayEntry = dailyData[dailyData.length-1];
+  for (let i=dailyData.length-1;i>=0;i--) {
+    const t=dailyData[i].tasks.brushTeeth;
+    if(t==="done") tStreak++; else if(t==="missed"||t==="partial") break;
+  }
+  const days7 = dailyData.slice(-7).map(completionPct).filter(v=>v!==null);
+  const avg = days7.length ? Math.round(days7.reduce((a,b)=>a+b,0)/days7.length) : null;
+  const daysTracked = dailyData.filter(d=>Object.values(d.tasks).some(v=>v!==null)).length;
+  const today = dailyData[dailyData.length-1];
 
-  const cards = [
-    { label: "Workout Streak", value: workoutStreak + " days", sub: "consecutive", cls: workoutStreak >= 3 ? "green" : workoutStreak > 0 ? "yellow" : "red" },
-    { label: "Teeth Streak", value: teethStreak > 0 ? teethStreak + " days" : "0", sub: teethStreak === 0 ? "needs attention" : "consecutive", cls: teethStreak >= 3 ? "green" : teethStreak > 0 ? "yellow" : "red" },
-    { label: "Avg Completion", value: avgCompletion !== null ? avgCompletion + "%" : "—", sub: "last 7 days", cls: avgCompletion >= 80 ? "green" : avgCompletion >= 50 ? "yellow" : "red" },
-    { label: "Days Tracked", value: daysTracked, sub: "since Apr 29", cls: "" },
-    { label: "Sessions Today", value: todayEntry && todayEntry.sessions !== null ? todayEntry.sessions : "—", sub: "main sessions (5PM→5PM)", cls: "" }
-  ];
-
-  document.getElementById("statCards").innerHTML = cards.map(c => `
-    <div class="card">
-      <div class="label">${c.label}</div>
-      <div class="value ${c.cls}">${c.value}</div>
-      <div class="sub">${c.sub}</div>
-    </div>`).join("");
+  document.getElementById("statCards").innerHTML = [
+    { label:"Workout Streak", value:wStreak+" days", sub:"consecutive", cls:wStreak>=3?"green":wStreak>0?"yellow":"red" },
+    { label:"Teeth Streak", value:tStreak>0?tStreak+" days":"0", sub:tStreak===0?"needs attention":"consecutive", cls:tStreak>=3?"green":tStreak>0?"yellow":"red" },
+    { label:"Avg Completion", value:avg!==null?avg+"%":"—", sub:"last 7 days", cls:avg>=80?"green":avg>=50?"yellow":"red" },
+    { label:"Days Tracked", value:daysTracked, sub:"since Apr 29", cls:"" },
+    { label:"Sessions Today", value:today&&today.sessions!==null?today.sessions:"—", sub:"main sessions (5PM→5PM)", cls:"" }
+  ].map(c=>`<div class="card"><div class="label">${c.label}</div><div class="value ${c.cls}">${c.value}</div><div class="sub">${c.sub}</div></div>`).join("");
 }
 
 // ─── DAILY TABLE ──────────────────────────────────────────────────────────────
 function buildDailyTable() {
-  document.getElementById("dailyTable").innerHTML = [...dailyData].reverse().map(d => `
+  document.getElementById("dailyTable").innerHTML = [...dailyData].reverse().map(d=>`
     <tr>
-      <td>${d.date}</td>
-      <td>${formatWake(d.wakeTime)}</td>
-      <td>${d.sessions !== null ? d.sessions : "—"}</td>
+      <td>${d.date}</td><td>${formatWake(d.wakeTime)}</td>
+      <td>${d.sessions!==null?d.sessions:"—"}</td>
       <td>${taskBadge(d.tasks.workout)}</td>
       <td>${taskBadge(d.tasks.brushTeeth)}</td>
       <td>${taskBadge(d.tasks.testosteroneShot)}</td>
-      <td style="color:#718096; font-size:0.8rem;">${d.notes || "—"}</td>
+      <td style="color:#718096;font-size:0.8rem;">${d.notes||"—"}</td>
     </tr>`).join("");
 }
 
-// ─── CHART ENGINE ─────────────────────────────────────────────────────────────
+// ─── MAIN CHARTS ─────────────────────────────────────────────────────────────
 const chartInstances = {};
-const chartRanges = { completion: 30, wake: 30, sessions: 30, task: 30 };
-let activeTaskKey = null;
+const chartRanges = { completion:30, wake:30, sessions:30 };
 
-const chartDefaults = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { labels: { color: "#a0aec0" } } },
-  scales: {
-    x: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } },
-    y: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } }
+const baseOpts = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ labels:{ color:"#a0aec0" } } },
+  scales:{
+    x:{ ticks:{ color:"#718096" }, grid:{ color:"#2d3748" } },
+    y:{ ticks:{ color:"#718096" }, grid:{ color:"#2d3748" } }
   }
 };
 
 function setRange(chartId, days) {
   chartRanges[chartId] = days;
-  const btnContainer = document.getElementById(chartId + "RangeBtns");
-  if (btnContainer) {
-    btnContainer.querySelectorAll(".range-btn").forEach(btn => {
-      btn.classList.toggle("active", parseInt(btn.dataset.days) === days);
-    });
-  }
-  if (chartId === "task" && activeTaskKey) {
-    updateTaskChart(activeTaskKey);
-  } else {
-    updateChart(chartId);
-  }
+  document.querySelectorAll(`#${chartId}RangeBtns .range-btn`).forEach(btn =>
+    btn.classList.toggle("active", parseInt(btn.dataset.days)===days));
+  updateChart(chartId);
 }
 
-function updateChart(chartId) {
-  const slice = getSlice(chartRanges[chartId]);
-  const labels = slice.map(d => d.date.slice(5));
-  const chart = chartInstances[chartId];
-  if (!chart) return;
-  chart.data.labels = labels;
-  if (chartId === "completion") {
-    chart.data.datasets[0].data = slice.map(completionPct);
-  } else if (chartId === "wake") {
-    chart.data.datasets[0].data = slice.map(d => wakeToDecimal(d.wakeTime));
-  } else if (chartId === "sessions") {
-    chart.data.datasets[0].data = slice.map(d => d.sessions);
-  }
-  chart.update();
+function updateChart(id) {
+  const slice = getSlice(chartRanges[id]);
+  const labels = slice.map(d=>d.date.slice(5));
+  const c = chartInstances[id];
+  if (!c) return;
+  c.data.labels = labels;
+  if (id==="completion") c.data.datasets[0].data = slice.map(completionPct);
+  else if (id==="wake")  c.data.datasets[0].data = slice.map(d=>wakeToDecimal(d.wakeTime));
+  else if (id==="sessions") c.data.datasets[0].data = slice.map(d=>d.sessions);
+  c.update();
 }
 
 function buildCharts() {
-  // Completion
-  chartInstances.completion = new Chart(document.getElementById("completionChart"), {
-    type: "line",
-    data: {
-      labels: getSlice(30).map(d => d.date.slice(5)),
-      datasets: [{ label: "% Tasks Done", data: getSlice(30).map(completionPct), borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.1)", tension: 0.3, pointRadius: 5, spanGaps: true }]
-    },
-    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 100, ticks: { color: "#718096", callback: v => v + "%" } } } }
+  chartInstances.completion = new Chart(document.getElementById("completionChart"),{
+    type:"line",
+    data:{ labels:getSlice(30).map(d=>d.date.slice(5)), datasets:[{ label:"% Tasks Done", data:getSlice(30).map(completionPct), borderColor:"#667eea", backgroundColor:"rgba(102,126,234,0.1)", tension:0.3, pointRadius:5, spanGaps:true }] },
+    options:{ ...baseOpts, scales:{ ...baseOpts.scales, y:{ ...baseOpts.scales.y, min:0, max:100, ticks:{ color:"#718096", callback:v=>v+"%" } } } }
   });
-
-  // Wake time
-  chartInstances.wake = new Chart(document.getElementById("wakeChart"), {
-    type: "line",
-    data: {
-      labels: getSlice(30).map(d => d.date.slice(5)),
-      datasets: [{ label: "Wake Time", data: getSlice(30).map(d => wakeToDecimal(d.wakeTime)), borderColor: "#ecc94b", backgroundColor: "rgba(236,201,75,0.1)", tension: 0.3, pointRadius: 5, spanGaps: false }]
-    },
-    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 5, max: 12, ticks: { color: "#718096", callback: v => { const h=Math.floor(v),m=Math.round((v-h)*60); return `${h}:${m.toString().padStart(2,"0")}`; } } } } }
+  chartInstances.wake = new Chart(document.getElementById("wakeChart"),{
+    type:"line",
+    data:{ labels:getSlice(30).map(d=>d.date.slice(5)), datasets:[{ label:"Wake Time", data:getSlice(30).map(d=>wakeToDecimal(d.wakeTime)), borderColor:"#ecc94b", backgroundColor:"rgba(236,201,75,0.1)", tension:0.3, pointRadius:5, spanGaps:false }] },
+    options:{ ...baseOpts, scales:{ ...baseOpts.scales, y:{ ...baseOpts.scales.y, min:5, max:12, ticks:{ color:"#718096", callback:v=>{ const h=Math.floor(v),m=Math.round((v-h)*60); return `${h}:${m.toString().padStart(2,"0")}`; } } } } }
   });
-
-  // Sessions
-  chartInstances.sessions = new Chart(document.getElementById("sessionsChart"), {
-    type: "bar",
-    data: {
-      labels: getSlice(30).map(d => d.date.slice(5)),
-      datasets: [{ label: "Sessions", data: getSlice(30).map(d => d.sessions), backgroundColor: "rgba(72,187,120,0.6)", borderColor: "#48bb78", borderWidth: 1 }]
-    },
-    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, ticks: { color: "#718096", stepSize: 1 } } } }
+  chartInstances.sessions = new Chart(document.getElementById("sessionsChart"),{
+    type:"bar",
+    data:{ labels:getSlice(30).map(d=>d.date.slice(5)), datasets:[{ label:"Sessions", data:getSlice(30).map(d=>d.sessions), backgroundColor:"rgba(72,187,120,0.6)", borderColor:"#48bb78", borderWidth:1 }] },
+    options:{ ...baseOpts, scales:{ ...baseOpts.scales, y:{ ...baseOpts.scales.y, min:0, ticks:{ color:"#718096", stepSize:1 } } } }
   });
 }
 
-// ─── TASK COMPLIANCE POPUP CHART ─────────────────────────────────────────────
+// ─── TASK COMPLIANCE CHARTS ───────────────────────────────────────────────────
+const taskChartMap = new Map(); // taskKey → { card, chart, range }
+
 function toggleTaskChart(th) {
-  const taskKey = th.dataset.task;
-  const label = th.dataset.label;
-  const card = document.getElementById("taskChartCard");
-
-  // Deselect all headers
-  document.querySelectorAll("th.clickable").forEach(el => el.classList.remove("selected"));
-
-  // If clicking the same task that's already open — close it
-  if (activeTaskKey === taskKey && card.style.display !== "none") {
-    card.style.display = "none";
-    activeTaskKey = null;
-    return;
+  const key = th.dataset.task;
+  if (taskChartMap.has(key)) {
+    removeTaskChart(key);
+  } else {
+    addTaskChart(key, th.dataset.label);
+    th.classList.add("selected");
   }
-
-  // Open / switch task
-  activeTaskKey = taskKey;
-  th.classList.add("selected");
-  document.getElementById("taskChartTitle").textContent = label + " — Compliance";
-  card.style.display = "block";
-
-  // Reset range buttons to 30d
-  chartRanges.task = 30;
-  document.querySelectorAll("#taskRangeBtns .range-btn").forEach(btn => {
-    btn.classList.toggle("active", parseInt(btn.dataset.days) === 30);
-  });
-
-  updateTaskChart(taskKey);
-  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-function updateTaskChart(taskKey) {
-  const slice = getSlice(chartRanges.task);
-  const labels = slice.map(d => d.date.slice(5));
-  const values = slice.map(d => {
-    const v = d.tasks[taskKey];
-    if (v === "done") return 1;
-    if (v === "missed" || v === "partial") return 0;
-    return null;
-  });
-  const colors = slice.map(d => {
-    const v = d.tasks[taskKey];
-    if (v === "done") return "rgba(72,187,120,0.75)";
-    if (v === "missed") return "rgba(252,129,129,0.75)";
-    if (v === "partial") return "rgba(236,201,75,0.75)";
+function addTaskChart(key, label) {
+  const cardId = "taskCard-" + key;
+  const canvasId = "taskCanvas-" + key;
+
+  const card = document.createElement("div");
+  card.className = "chart-card";
+  card.id = cardId;
+  card.draggable = true;
+  card.innerHTML = `
+    <div class="chart-header">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="chart-header-left">
+        <h2 style="color:#667eea">${label} — Compliance</h2>
+        <p class="section-note">Done / Missed per day</p>
+      </div>
+      <div class="chart-controls">
+        <div class="range-btns" id="taskRangeBtns-${key}">
+          <button class="range-btn" onclick="setTaskRange('${key}',7)" data-days="7">7d</button>
+          <button class="range-btn active" onclick="setTaskRange('${key}',30)" data-days="30">30d</button>
+          <button class="range-btn" onclick="setTaskRange('${key}',365)" data-days="365">1yr</button>
+        </div>
+        <button class="close-btn" onclick="removeTaskChart('${key}')" title="Remove chart">✕</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="${canvasId}"></canvas></div>`;
+
+  document.getElementById("dashboard").appendChild(card);
+  initDragOnCard(card);
+
+  const chart = buildTaskChart(key, canvasId, 30);
+  taskChartMap.set(key, { card, chart, range:30 });
+  card.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  saveDashboardState();
+}
+
+function removeTaskChart(key) {
+  const entry = taskChartMap.get(key);
+  if (!entry) return;
+  entry.chart.destroy();
+  entry.card.remove();
+  taskChartMap.delete(key);
+  document.querySelectorAll(`th[data-task="${key}"]`).forEach(el=>el.classList.remove("selected"));
+  saveDashboardState();
+}
+
+function setTaskRange(key, days) {
+  const entry = taskChartMap.get(key);
+  if (!entry) return;
+  entry.range = days;
+  document.querySelectorAll(`#taskRangeBtns-${key} .range-btn`).forEach(btn=>
+    btn.classList.toggle("active", parseInt(btn.dataset.days)===days));
+  entry.chart.destroy();
+  entry.chart = buildTaskChart(key, "taskCanvas-"+key, days);
+}
+
+function buildTaskChart(key, canvasId, days) {
+  const slice = getSlice(days);
+  const colors = slice.map(d=>{
+    const v=d.tasks[key];
+    if(v==="done") return "rgba(72,187,120,0.75)";
+    if(v==="missed") return "rgba(252,129,129,0.75)";
+    if(v==="partial") return "rgba(236,201,75,0.75)";
     return "rgba(45,55,72,0.4)";
   });
-
-  if (chartInstances.task) {
-    chartInstances.task.destroy();
-  }
-
-  chartInstances.task = new Chart(document.getElementById("taskChart"), {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Done / Missed",
-        data: values,
-        backgroundColor: colors,
-        borderWidth: 0,
-        borderRadius: 4
-      }]
+  return new Chart(document.getElementById(canvasId),{
+    type:"bar",
+    data:{
+      labels: slice.map(d=>d.date.slice(5)),
+      datasets:[{ label:"Done/Missed", data:slice.map(d=>{ const v=d.tasks[key]; return v==="done"?1:v==="missed"||v==="partial"?0:null; }), backgroundColor:colors, borderWidth:0, borderRadius:4 }]
     },
-    options: {
-      ...chartDefaults,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } },
-        y: {
-          min: 0, max: 1,
-          ticks: { color: "#718096", stepSize: 1, callback: v => v === 1 ? "Done" : v === 0 ? "Missed" : "" },
-          grid: { color: "#2d3748" }
-        }
+    options:{
+      ...baseOpts,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:"#718096" }, grid:{ color:"#2d3748" } },
+        y:{ min:0, max:1, ticks:{ color:"#718096", stepSize:1, callback:v=>v===1?"Done":v===0?"Missed":"" }, grid:{ color:"#2d3748" } }
       }
     }
   });
+}
+
+// ─── DRAG TO REORDER ──────────────────────────────────────────────────────────
+let dragSrc = null;
+
+function initDragOnCard(card) {
+  card.addEventListener("dragstart", e => {
+    // Only start drag from the handle
+    if (!e.target.classList.contains("drag-handle")) { e.preventDefault(); return; }
+    dragSrc = card;
+    e.dataTransfer.effectAllowed = "move";
+    setTimeout(() => card.classList.add("dragging"), 0);
+  });
+  card.addEventListener("dragend", () => {
+    card.classList.remove("dragging");
+    document.querySelectorAll(".chart-card").forEach(c=>{ c.classList.remove("drag-over-top","drag-over-bottom"); });
+    dragSrc = null;
+    saveDashboardState();
+  });
+  card.addEventListener("dragover", e => {
+    if (!dragSrc || dragSrc === card) return;
+    e.preventDefault();
+    const rect = card.getBoundingClientRect();
+    const isTop = e.clientY < rect.top + rect.height/2;
+    card.classList.toggle("drag-over-top", isTop);
+    card.classList.toggle("drag-over-bottom", !isTop);
+  });
+  card.addEventListener("dragleave", () => {
+    card.classList.remove("drag-over-top","drag-over-bottom");
+  });
+  card.addEventListener("drop", e => {
+    if (!dragSrc || dragSrc === card) return;
+    e.preventDefault();
+    card.classList.remove("drag-over-top","drag-over-bottom");
+    const rect = card.getBoundingClientRect();
+    const isTop = e.clientY < rect.top + rect.height/2;
+    const dashboard = document.getElementById("dashboard");
+    if (isTop) dashboard.insertBefore(dragSrc, card);
+    else dashboard.insertBefore(dragSrc, card.nextSibling);
+  });
+}
+
+function initDragDrop() {
+  document.querySelectorAll("#dashboard > .chart-card").forEach(initDragOnCard);
+}
+
+// ─── DASHBOARD STATE (localStorage) ──────────────────────────────────────────
+function saveDashboardState() {
+  const cards = [...document.querySelectorAll("#dashboard > .chart-card")];
+  const order = cards.map(c => c.id);
+  const openTasks = [...taskChartMap.keys()];
+  localStorage.setItem("dashboardState", JSON.stringify({ order, openTasks }));
+}
+
+function loadDashboardState() {
+  try {
+    const state = JSON.parse(localStorage.getItem("dashboardState") || "{}");
+    const { order=[], openTasks=[] } = state;
+
+    // Restore card order
+    const dashboard = document.getElementById("dashboard");
+    order.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) dashboard.appendChild(el);
+    });
+
+    // Restore open task charts
+    openTasks.forEach(key => {
+      const th = document.querySelector(`th[data-task="${key}"]`);
+      if (th && !taskChartMap.has(key)) {
+        addTaskChart(key, th.dataset.label);
+        th.classList.add("selected");
+      }
+    });
+  } catch(e) {}
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 buildStatCards();
 buildDailyTable();
 buildCharts();
+initDragDrop();
+loadDashboardState();
 </script>
 
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
 // REMINDER SYSTEM
 // ══════════════════════════════════════════════════════════════════════════════
-
 const TASKS = [
-  { id: "wake",    label: "Wake up",     icon: "☀️", hour: 8,  min: 0 },
-  { id: "workout", label: "Workout",     icon: "💪", hour: 13, min: 0 },
-  { id: "teeth",   label: "Brush teeth", icon: "🦷", hour: 19, min: 0 },
+  { id:"wake",    label:"Wake up",     icon:"☀️", hour:8,  min:0 },
+  { id:"workout", label:"Workout",     icon:"💪", hour:13, min:0 },
+  { id:"teeth",   label:"Brush teeth", icon:"🦷", hour:19, min:0 },
 ];
 
-// localStorage key: 'taskLog'
-// Format: { "2026-04-30": { "workout": {confirmedAt: "13:04", confirmedAtMs: ...}, ... }, ... }
-
-function todayKey() { return new Date().toISOString().slice(0, 10); }
-function getLog() { try { return JSON.parse(localStorage.getItem('taskLog') || '{}'); } catch { return {}; } }
-function saveLog(log) { localStorage.setItem('taskLog', JSON.stringify(log)); }
-function isConfirmedToday(id) { const log = getLog(); return !!(log[todayKey()] && log[todayKey()][id]); }
+function todayKey() { return new Date().toISOString().slice(0,10); }
+function getLog() { try { return JSON.parse(localStorage.getItem("taskLog")||"{}"); } catch { return {}; } }
+function saveLog(log) { localStorage.setItem("taskLog",JSON.stringify(log)); }
+function isConfirmedToday(id) { const l=getLog(); return !!(l[todayKey()]&&l[todayKey()][id]); }
 
 function confirmTask() {
-  const active = getActiveTask();
-  if (!active) return;
-  const log = getLog(), key = todayKey(), now = new Date();
-  if (!log[key]) log[key] = {};
-  log[key][active.id] = { confirmedAt: now.toTimeString().slice(0,5), confirmedAtMs: now.getTime() };
-  saveLog(log);
-  renderBar();
+  const a=getActiveTask(); if(!a) return;
+  const log=getLog(),key=todayKey(),now=new Date();
+  if(!log[key]) log[key]={};
+  log[key][a.id]={ confirmedAt:now.toTimeString().slice(0,5), confirmedAtMs:now.getTime() };
+  saveLog(log); renderBar();
 }
 
 function getActiveTask() {
-  const now = new Date(), todayMin = now.getHours()*60 + now.getMinutes();
-  let active = null;
-  for (const task of TASKS) {
-    if (task.hour*60 + task.min <= todayMin) {
-      active = isConfirmedToday(task.id) ? null : task;
-    }
-  }
+  const now=new Date(),m=now.getHours()*60+now.getMinutes();
+  let active=null;
+  for(const t of TASKS) { if(t.hour*60+t.min<=m) active=isConfirmedToday(t.id)?null:t; }
   return active;
 }
-
 function getNextTask() {
-  const now = new Date(), todayMin = now.getHours()*60 + now.getMinutes();
-  return TASKS.find(t => t.hour*60 + t.min > todayMin) || null;
+  const now=new Date(),m=now.getHours()*60+now.getMinutes();
+  return TASKS.find(t=>t.hour*60+t.min>m)||null;
 }
-
-function formatTime(h, m) {
-  const p = h>=12?'PM':'AM', hr = h>12?h-12:h===0?12:h;
-  return `${hr}:${m.toString().padStart(2,'0')} ${p}`;
-}
+function fmt(h,m) { const p=h>=12?"PM":"AM",hr=h>12?h-12:h===0?12:h; return `${hr}:${m.toString().padStart(2,"0")} ${p}`; }
 
 function renderBar() {
-  const active = getActiveTask(), next = getNextTask();
-  const widget = document.getElementById('reminder-widget');
-  const btn = document.getElementById('widget-confirm');
-  if (active) {
-    widget.className = 'active';
-    document.getElementById('w-icon').textContent = active.icon;
-    document.getElementById('w-label').textContent = active.label;
-    document.getElementById('w-time').textContent = formatTime(active.hour, active.min);
-    btn.style.display = 'block';
+  const a=getActiveTask(),n=getNextTask(),w=document.getElementById("reminder-widget"),btn=document.getElementById("widget-confirm");
+  if(a) {
+    w.className="active";
+    document.getElementById("w-icon").textContent=a.icon;
+    document.getElementById("w-label").textContent=a.label;
+    document.getElementById("w-time").textContent=fmt(a.hour,a.min);
+    btn.style.display="block";
   } else {
-    widget.className = 'allgood';
-    document.getElementById('w-icon').textContent = '✅';
-    document.getElementById('w-label').textContent = 'All caught up';
-    document.getElementById('w-time').textContent = '';
-    btn.style.display = 'none';
+    w.className="allgood";
+    document.getElementById("w-icon").textContent="✅";
+    document.getElementById("w-label").textContent="All caught up";
+    document.getElementById("w-time").textContent="";
+    btn.style.display="none";
   }
-  const nextEl = document.getElementById('widget-next');
-  nextEl.textContent = next ? `Next: ${next.icon} ${next.label} · ${formatTime(next.hour, next.min)}` : 'No more tasks today';
+  document.getElementById("widget-next").textContent=n?`Next: ${n.icon} ${n.label} · ${fmt(n.hour,n.min)}`:"No more tasks today";
 }
 
 function playBell() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator(), gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.4);
-    gain.gain.setValueAtTime(0.4, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 1.2);
+    const ctx=new(window.AudioContext||window.webkitAudioContext)(),osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);osc.type="sine";
+    osc.frequency.setValueAtTime(880,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440,ctx.currentTime+0.4);
+    gain.gain.setValueAtTime(0.4,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.2);
   } catch(e) {}
 }
 
-let _lastFiredTask = null;
+let _lastFired=null;
 function checkAndFire() {
-  const active = getActiveTask();
-  if (active && active.id !== _lastFiredTask) { _lastFiredTask = active.id; playBell(); }
+  const a=getActiveTask();
+  if(a&&a.id!==_lastFired){ _lastFired=a.id; playBell(); }
   renderBar();
 }
-
 renderBar();
-setInterval(checkAndFire, 30000);
+setInterval(checkAndFire,30000);
 </script>
 
 </body>
