@@ -421,8 +421,8 @@ let dragSrc = null;
 
 function initDragOnCard(card) {
   card.addEventListener("dragstart", e => {
-    // Only start drag from the handle
-    if (!e.target.classList.contains("drag-handle")) { e.preventDefault(); return; }
+    // Allow drag from anywhere except interactive elements
+    if (e.target.tagName === "BUTTON" || e.target.tagName === "CANVAS" || e.target.tagName === "TH" || e.target.tagName === "TD") { e.preventDefault(); return; }
     dragSrc = card;
     e.dataTransfer.effectAllowed = "move";
     setTimeout(() => card.classList.add("dragging"), 0);
