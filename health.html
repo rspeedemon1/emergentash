@@ -258,6 +258,12 @@ function buildStatCards() {
       value: daysTracked,
       sub: "since Apr 29",
       cls: ""
+    },
+    {
+      label: "Sessions Today",
+      value: dailyData.length ? (dailyData[dailyData.length-1].sessions !== null ? dailyData[dailyData.length-1].sessions : "—") : "—",
+      sub: "main sessions (5PM→ 5PM)",
+      cls: ""
     }
   ];
 
