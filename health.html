@@ -9,55 +9,24 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
 
-    /* ── Reminder Widget (floating top-right) ───────────────────── */
+    /* ── Reminder Widget ───────────────────────────────────────── */
     #reminder-widget {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 1000;
-      background: #1a202c;
-      border: 1px solid #2d3748;
-      border-radius: 12px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 5px;
-      width: 172px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-      transition: border-color 0.3s;
+      position: fixed; top: 16px; right: 16px; z-index: 1000;
+      background: #1a202c; border: 1px solid #2d3748; border-radius: 12px;
+      padding: 8px 10px; display: flex; flex-direction: column;
+      align-items: stretch; gap: 5px; width: 172px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4); transition: border-color 0.3s;
     }
     #reminder-widget.active  { border-color: #276749; }
     #reminder-widget.allgood { border-color: #2d3748; }
-    #widget-task {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #e2e8f0;
-    }
+    #widget-task { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.88rem; font-weight: 600; color: #e2e8f0; }
     #widget-task .w-icon { font-size: 0.95rem; }
     #widget-task .w-time { font-size: 0.75rem; color: #718096; font-weight: 400; }
-    #widget-next {
-      font-size: 0.72rem;
-      color: #4a5568;
-      text-align: center;
-    }
-    #widget-confirm {
-      background: #276749;
-      color: #f7fafc;
-      border: none;
-      border-radius: 8px;
-      padding: 5px 0;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      width: 100%;
-    }
+    #widget-next { font-size: 0.72rem; color: #4a5568; text-align: center; }
+    #widget-confirm { background: #276749; color: #f7fafc; border: none; border-radius: 8px; padding: 5px 0; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; width: 100%; }
     #widget-confirm:hover { background: #2f855a; }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
     h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: #f7fafc; }
     .subtitle { color: #718096; font-size: 0.875rem; margin-bottom: 24px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -65,17 +34,28 @@
     .card .label { font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
     .card .value { font-size: 2rem; font-weight: 700; color: #f7fafc; line-height: 1.1; }
     .card .sub { font-size: 0.8rem; color: #4a5568; margin-top: 6px; }
-    .green { color: #48bb78 !important; }
-    .red { color: #fc8181 !important; }
-    .yellow { color: #ecc94b !important; }
-    .muted { color: #718096 !important; }
+    .green { color: #48bb78 !important; } .red { color: #fc8181 !important; }
+    .yellow { color: #ecc94b !important; } .muted { color: #718096 !important; }
+
+    /* ── Chart Cards ────────────────────────────────────────────── */
     .chart-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-    .chart-card h2 { font-size: 1rem; font-weight: 600; color: #a0aec0; margin-bottom: 16px; }
+    .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .chart-header-left h2 { font-size: 1rem; font-weight: 600; color: #a0aec0; margin-bottom: 4px; }
+    .section-note { font-size: 0.8rem; color: #4a5568; font-style: italic; }
+    .range-btns { display: flex; gap: 4px; flex-shrink: 0; margin-left: 12px; padding-top: 2px; }
+    .range-btn { background: #2d3748; color: #718096; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .range-btn:hover { background: #3d4a5c; color: #a0aec0; }
+    .range-btn.active { background: #4a5568; color: #e2e8f0; }
     .chart-wrap { position: relative; height: 240px; }
+
+    /* ── Table ───────────────────────────────────────────────────── */
     table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
     th { text-align: left; padding: 10px 12px; color: #718096; font-weight: 500; border-bottom: 1px solid #2d3748; font-size: 0.75rem; text-transform: uppercase; }
     td { padding: 10px 12px; border-bottom: 1px solid #1e2533; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
+    th.clickable { cursor: pointer; user-select: none; transition: color 0.15s; }
+    th.clickable:hover { color: #a0aec0; }
+    th.clickable.selected { color: #667eea; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
     .badge-green { background: #1c4532; color: #48bb78; }
     .badge-red { background: #3d1f1f; color: #fc8181; }
@@ -83,11 +63,13 @@
     .badge-gray { background: #2d3748; color: #718096; }
     .streak-bar { display: flex; gap: 4px; align-items: center; }
     .streak-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-green { background: #48bb78; }
-    .dot-red { background: #fc8181; }
-    .dot-gray { background: #2d3748; }
-    .dot-yellow { background: #ecc94b; }
-    .section-note { font-size: 0.8rem; color: #4a5568; margin-bottom: 16px; font-style: italic; }
+    .dot-green { background: #48bb78; } .dot-red { background: #fc8181; }
+    .dot-gray { background: #2d3748; } .dot-yellow { background: #ecc94b; }
+
+    /* ── Task popup chart ───────────────────────────────────────── */
+    #taskChartCard { display: none; border-color: #4a5568; }
+    #taskChartCard .chart-header-left h2 { color: #667eea; }
+
     footer { color: #4a5568; font-size: 0.75rem; margin-top: 16px; text-align: center; }
     @media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
@@ -108,59 +90,95 @@
 <h1>📊 Will's Health & Routine Tracker</h1>
 <p class="subtitle">Daily habits, streaks, and patterns — tracking since April 2026</p>
 
-<div class="grid" id="statCards">
-  <!-- Populated by JS -->
-</div>
+<div class="grid" id="statCards"></div>
 
 <div class="chart-card">
-  <h2>30-Day Task Completion</h2>
-  <p class="section-note">Percentage of trackable tasks completed each day</p>
+  <div class="chart-header">
+    <div class="chart-header-left">
+      <h2>Task Completion</h2>
+      <p class="section-note">Percentage of trackable tasks completed each day</p>
+    </div>
+    <div class="range-btns" id="completionRangeBtns">
+      <button class="range-btn" onclick="setRange('completion',7)" data-days="7">7d</button>
+      <button class="range-btn active" onclick="setRange('completion',30)" data-days="30">30d</button>
+      <button class="range-btn" onclick="setRange('completion',365)" data-days="365">1yr</button>
+    </div>
+  </div>
   <div class="chart-wrap"><canvas id="completionChart"></canvas></div>
 </div>
 
 <div class="chart-card">
-  <h2>Wake Time</h2>
-  <p class="section-note">Time out of bed each morning</p>
+  <div class="chart-header">
+    <div class="chart-header-left">
+      <h2>Wake Time</h2>
+      <p class="section-note">Time out of bed each morning</p>
+    </div>
+    <div class="range-btns" id="wakeRangeBtns">
+      <button class="range-btn" onclick="setRange('wake',7)" data-days="7">7d</button>
+      <button class="range-btn active" onclick="setRange('wake',30)" data-days="30">30d</button>
+      <button class="range-btn" onclick="setRange('wake',365)" data-days="365">1yr</button>
+    </div>
+  </div>
   <div class="chart-wrap"><canvas id="wakeChart"></canvas></div>
 </div>
 
 <div class="chart-card">
-  <h2>Sessions Per Day</h2>
-  <p class="section-note">Work sessions completed (trading, AI, projects)</p>
+  <div class="chart-header">
+    <div class="chart-header-left">
+      <h2>Sessions Per Day</h2>
+      <p class="section-note">Main work sessions completed (5 PM → 5 PM window)</p>
+    </div>
+    <div class="range-btns" id="sessionsRangeBtns">
+      <button class="range-btn" onclick="setRange('sessions',7)" data-days="7">7d</button>
+      <button class="range-btn active" onclick="setRange('sessions',30)" data-days="30">30d</button>
+      <button class="range-btn" onclick="setRange('sessions',365)" data-days="365">1yr</button>
+    </div>
+  </div>
   <div class="chart-wrap"><canvas id="sessionsChart"></canvas></div>
 </div>
 
 <div class="chart-card">
-  <h2>Recent Days</h2>
+  <h2 style="font-size:1rem; font-weight:600; color:#a0aec0; margin-bottom:16px;">Recent Days</h2>
   <table>
     <thead>
       <tr>
         <th>Date</th>
         <th>Wake</th>
         <th>Sessions</th>
-        <th>Workout</th>
-        <th>Teeth</th>
-        <th>TRT</th>
+        <th class="clickable" data-task="workout" data-label="Workout" onclick="toggleTaskChart(this)">Workout ↗</th>
+        <th class="clickable" data-task="brushTeeth" data-label="Brush Teeth" onclick="toggleTaskChart(this)">Teeth ↗</th>
+        <th class="clickable" data-task="testosteroneShot" data-label="TRT" onclick="toggleTaskChart(this)">TRT ↗</th>
         <th>Notes</th>
       </tr>
     </thead>
-    <tbody id="dailyTable">
-      <!-- Populated by JS -->
-    </tbody>
+    <tbody id="dailyTable"></tbody>
   </table>
+</div>
+
+<!-- Task compliance popup chart (shown on column click) -->
+<div class="chart-card" id="taskChartCard">
+  <div class="chart-header">
+    <div class="chart-header-left">
+      <h2 id="taskChartTitle">Task Compliance</h2>
+      <p class="section-note">Done / Missed per day — click column header again to close</p>
+    </div>
+    <div class="range-btns" id="taskRangeBtns">
+      <button class="range-btn" onclick="setRange('task',7)" data-days="7">7d</button>
+      <button class="range-btn active" onclick="setRange('task',30)" data-days="30">30d</button>
+      <button class="range-btn" onclick="setRange('task',365)" data-days="365">1yr</button>
+    </div>
+  </div>
+  <div class="chart-wrap"><canvas id="taskChart"></canvas></div>
 </div>
 
 <footer>Ash Health Tracker · Updated daily at 5 PM review · Data starts April 29, 2026</footer>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
-// Each entry mirrors the daily JSON schema.
-// Add new days here as they accumulate — oldest first.
+// ─── DATA ────────────────────────────────────────────────────────────────────
 const dailyData = [
   {
     date: "2026-04-29",
-    wakeTime: null,
-    sessions: null,
+    wakeTime: null, sessions: null,
     tasks: { workout: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed" },
     health: { energy: null, symptoms: "sick", mood: null },
     productivity: null,
@@ -168,8 +186,7 @@ const dailyData = [
   },
   {
     date: "2026-04-30",
-    wakeTime: null,
-    sessions: null,
+    wakeTime: null, sessions: null,
     tasks: { workout: null, brushTeeth: null, testosteroneShot: null, instacart: "na", financialForecast: null },
     health: { energy: null, symptoms: null, mood: null },
     productivity: null,
@@ -178,27 +195,18 @@ const dailyData = [
 ];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-function taskDot(status) {
-  if (status === "done") return `<span class="streak-dot dot-green" title="done"></span>`;
-  if (status === "missed") return `<span class="streak-dot dot-red" title="missed"></span>`;
-  if (status === "partial") return `<span class="streak-dot dot-yellow" title="partial"></span>`;
-  if (status === "na") return `<span class="streak-dot dot-gray" title="n/a"></span>`;
-  return `<span class="streak-dot dot-gray" title="pending"></span>`;
-}
-
 function taskBadge(status) {
-  if (status === "done") return `<span class="badge badge-green">✓</span>`;
-  if (status === "missed") return `<span class="badge badge-red">✗</span>`;
+  if (status === "done")    return `<span class="badge badge-green">✓</span>`;
+  if (status === "missed")  return `<span class="badge badge-red">✗</span>`;
   if (status === "partial") return `<span class="badge badge-yellow">~</span>`;
-  if (status === "na") return `<span class="badge badge-gray">—</span>`;
+  if (status === "na")      return `<span class="badge badge-gray">—</span>`;
   return `<span class="badge badge-gray">?</span>`;
 }
 
 function completionPct(day) {
   const trackable = Object.entries(day.tasks).filter(([,v]) => v !== "na" && v !== null);
-  if (trackable.length === 0) return null;
-  const done = trackable.filter(([,v]) => v === "done").length;
-  return Math.round((done / trackable.length) * 100);
+  if (!trackable.length) return null;
+  return Math.round(trackable.filter(([,v]) => v === "done").length / trackable.length * 100);
 }
 
 function wakeToDecimal(t) {
@@ -206,65 +214,37 @@ function wakeToDecimal(t) {
   const [h, m] = t.split(":").map(Number);
   return h + m / 60;
 }
-
 function formatWake(t) { return t || "—"; }
 
-// ─── STAT CARDS ──────────────────────────────────────────────────────────────
+function getSlice(days) {
+  return days >= dailyData.length ? dailyData : dailyData.slice(-days);
+}
+
+// ─── STAT CARDS ───────────────────────────────────────────────────────────────
 function buildStatCards() {
-  // Curls streak
   let workoutStreak = 0;
   for (let i = dailyData.length - 1; i >= 0; i--) {
     const s = dailyData[i].tasks.workout;
     if (s === "done") workoutStreak++;
     else if (s === "missed" || s === "partial") break;
   }
-
-  // Teeth streak
   let teethStreak = 0;
   for (let i = dailyData.length - 1; i >= 0; i--) {
     const s = dailyData[i].tasks.brushTeeth;
     if (s === "done") teethStreak++;
     else if (s === "missed" || s === "partial") break;
   }
-
-  // Days tracked
   const daysTracked = dailyData.filter(d => Object.values(d.tasks).some(v => v !== null)).length;
-
-  // Avg completion (last 7 days)
   const recent = dailyData.slice(-7).map(completionPct).filter(v => v !== null);
-  const avgCompletion = recent.length ? Math.round(recent.reduce((a,b) => a+b,0) / recent.length) : null;
+  const avgCompletion = recent.length ? Math.round(recent.reduce((a,b)=>a+b,0)/recent.length) : null;
+  const todayEntry = dailyData[dailyData.length-1];
 
   const cards = [
-    {
-      label: "Workout Streak",
-      value: workoutStreak + " days",
-      sub: "consecutive",
-      cls: workoutStreak >= 3 ? "green" : workoutStreak > 0 ? "yellow" : "red"
-    },
-    {
-      label: "Teeth Streak",
-      value: teethStreak > 0 ? teethStreak + " days" : "0",
-      sub: teethStreak === 0 ? "needs attention" : "consecutive",
-      cls: teethStreak >= 3 ? "green" : teethStreak > 0 ? "yellow" : "red"
-    },
-    {
-      label: "Avg Completion",
-      value: avgCompletion !== null ? avgCompletion + "%" : "—",
-      sub: "last 7 days",
-      cls: avgCompletion >= 80 ? "green" : avgCompletion >= 50 ? "yellow" : "red"
-    },
-    {
-      label: "Days Tracked",
-      value: daysTracked,
-      sub: "since Apr 29",
-      cls: ""
-    },
-    {
-      label: "Sessions Today",
-      value: dailyData.length ? (dailyData[dailyData.length-1].sessions !== null ? dailyData[dailyData.length-1].sessions : "—") : "—",
-      sub: "main sessions (5PM→ 5PM)",
-      cls: ""
-    }
+    { label: "Workout Streak", value: workoutStreak + " days", sub: "consecutive", cls: workoutStreak >= 3 ? "green" : workoutStreak > 0 ? "yellow" : "red" },
+    { label: "Teeth Streak", value: teethStreak > 0 ? teethStreak + " days" : "0", sub: teethStreak === 0 ? "needs attention" : "consecutive", cls: teethStreak >= 3 ? "green" : teethStreak > 0 ? "yellow" : "red" },
+    { label: "Avg Completion", value: avgCompletion !== null ? avgCompletion + "%" : "—", sub: "last 7 days", cls: avgCompletion >= 80 ? "green" : avgCompletion >= 50 ? "yellow" : "red" },
+    { label: "Days Tracked", value: daysTracked, sub: "since Apr 29", cls: "" },
+    { label: "Sessions Today", value: todayEntry && todayEntry.sessions !== null ? todayEntry.sessions : "—", sub: "main sessions (5PM→5PM)", cls: "" }
   ];
 
   document.getElementById("statCards").innerHTML = cards.map(c => `
@@ -272,13 +252,12 @@ function buildStatCards() {
       <div class="label">${c.label}</div>
       <div class="value ${c.cls}">${c.value}</div>
       <div class="sub">${c.sub}</div>
-    </div>
-  `).join("");
+    </div>`).join("");
 }
 
-// ─── DAILY TABLE ─────────────────────────────────────────────────────────────
+// ─── DAILY TABLE ──────────────────────────────────────────────────────────────
 function buildDailyTable() {
-  const rows = [...dailyData].reverse().map(d => `
+  document.getElementById("dailyTable").innerHTML = [...dailyData].reverse().map(d => `
     <tr>
       <td>${d.date}</td>
       <td>${formatWake(d.wakeTime)}</td>
@@ -287,105 +266,162 @@ function buildDailyTable() {
       <td>${taskBadge(d.tasks.brushTeeth)}</td>
       <td>${taskBadge(d.tasks.testosteroneShot)}</td>
       <td style="color:#718096; font-size:0.8rem;">${d.notes || "—"}</td>
-    </tr>
-  `).join("");
-  document.getElementById("dailyTable").innerHTML = rows;
+    </tr>`).join("");
 }
 
-// ─── CHARTS ──────────────────────────────────────────────────────────────────
+// ─── CHART ENGINE ─────────────────────────────────────────────────────────────
+const chartInstances = {};
+const chartRanges = { completion: 30, wake: 30, sessions: 30, task: 30 };
+let activeTaskKey = null;
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: "#a0aec0" } } },
+  scales: {
+    x: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } },
+    y: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } }
+  }
+};
+
+function setRange(chartId, days) {
+  chartRanges[chartId] = days;
+  const btnContainer = document.getElementById(chartId + "RangeBtns");
+  if (btnContainer) {
+    btnContainer.querySelectorAll(".range-btn").forEach(btn => {
+      btn.classList.toggle("active", parseInt(btn.dataset.days) === days);
+    });
+  }
+  if (chartId === "task" && activeTaskKey) {
+    updateTaskChart(activeTaskKey);
+  } else {
+    updateChart(chartId);
+  }
+}
+
+function updateChart(chartId) {
+  const slice = getSlice(chartRanges[chartId]);
+  const labels = slice.map(d => d.date.slice(5));
+  const chart = chartInstances[chartId];
+  if (!chart) return;
+  chart.data.labels = labels;
+  if (chartId === "completion") {
+    chart.data.datasets[0].data = slice.map(completionPct);
+  } else if (chartId === "wake") {
+    chart.data.datasets[0].data = slice.map(d => wakeToDecimal(d.wakeTime));
+  } else if (chartId === "sessions") {
+    chart.data.datasets[0].data = slice.map(d => d.sessions);
+  }
+  chart.update();
+}
+
 function buildCharts() {
-  const labels = dailyData.map(d => d.date.slice(5)); // MM-DD
-  const completions = dailyData.map(completionPct);
-  const wakeVals = dailyData.map(d => wakeToDecimal(d.wakeTime));
-  const sessionVals = dailyData.map(d => d.sessions);
-
-  const chartDefaults = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: "#a0aec0" } } },
-    scales: {
-      x: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } },
-      y: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } }
-    }
-  };
-
-  // Completion chart
-  new Chart(document.getElementById("completionChart"), {
+  // Completion
+  chartInstances.completion = new Chart(document.getElementById("completionChart"), {
     type: "line",
     data: {
-      labels,
-      datasets: [{
-        label: "% Tasks Done",
-        data: completions,
-        borderColor: "#667eea",
-        backgroundColor: "rgba(102,126,234,0.1)",
-        tension: 0.3,
-        pointRadius: 5,
-        spanGaps: true
-      }]
+      labels: getSlice(30).map(d => d.date.slice(5)),
+      datasets: [{ label: "% Tasks Done", data: getSlice(30).map(completionPct), borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.1)", tension: 0.3, pointRadius: 5, spanGaps: true }]
     },
-    options: {
-      ...chartDefaults,
-      scales: {
-        ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, min: 0, max: 100, ticks: { color: "#718096", callback: v => v + "%" } }
-      }
-    }
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 100, ticks: { color: "#718096", callback: v => v + "%" } } } }
   });
 
-  // Wake time chart
-  new Chart(document.getElementById("wakeChart"), {
+  // Wake time
+  chartInstances.wake = new Chart(document.getElementById("wakeChart"), {
     type: "line",
     data: {
-      labels,
-      datasets: [{
-        label: "Wake Time (hour)",
-        data: wakeVals,
-        borderColor: "#ecc94b",
-        backgroundColor: "rgba(236,201,75,0.1)",
-        tension: 0.3,
-        pointRadius: 5,
-        spanGaps: false
-      }]
+      labels: getSlice(30).map(d => d.date.slice(5)),
+      datasets: [{ label: "Wake Time", data: getSlice(30).map(d => wakeToDecimal(d.wakeTime)), borderColor: "#ecc94b", backgroundColor: "rgba(236,201,75,0.1)", tension: 0.3, pointRadius: 5, spanGaps: false }]
     },
-    options: {
-      ...chartDefaults,
-      scales: {
-        ...chartDefaults.scales,
-        y: {
-          ...chartDefaults.scales.y,
-          min: 5, max: 12,
-          ticks: {
-            color: "#718096",
-            callback: v => {
-              const h = Math.floor(v);
-              const m = Math.round((v - h) * 60);
-              return `${h}:${m.toString().padStart(2,"0")}`;
-            }
-          }
-        }
-      }
-    }
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 5, max: 12, ticks: { color: "#718096", callback: v => { const h=Math.floor(v),m=Math.round((v-h)*60); return `${h}:${m.toString().padStart(2,"0")}`; } } } } }
   });
 
-  // Sessions chart
-  new Chart(document.getElementById("sessionsChart"), {
+  // Sessions
+  chartInstances.sessions = new Chart(document.getElementById("sessionsChart"), {
+    type: "bar",
+    data: {
+      labels: getSlice(30).map(d => d.date.slice(5)),
+      datasets: [{ label: "Sessions", data: getSlice(30).map(d => d.sessions), backgroundColor: "rgba(72,187,120,0.6)", borderColor: "#48bb78", borderWidth: 1 }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, ticks: { color: "#718096", stepSize: 1 } } } }
+  });
+}
+
+// ─── TASK COMPLIANCE POPUP CHART ─────────────────────────────────────────────
+function toggleTaskChart(th) {
+  const taskKey = th.dataset.task;
+  const label = th.dataset.label;
+  const card = document.getElementById("taskChartCard");
+
+  // Deselect all headers
+  document.querySelectorAll("th.clickable").forEach(el => el.classList.remove("selected"));
+
+  // If clicking the same task that's already open — close it
+  if (activeTaskKey === taskKey && card.style.display !== "none") {
+    card.style.display = "none";
+    activeTaskKey = null;
+    return;
+  }
+
+  // Open / switch task
+  activeTaskKey = taskKey;
+  th.classList.add("selected");
+  document.getElementById("taskChartTitle").textContent = label + " — Compliance";
+  card.style.display = "block";
+
+  // Reset range buttons to 30d
+  chartRanges.task = 30;
+  document.querySelectorAll("#taskRangeBtns .range-btn").forEach(btn => {
+    btn.classList.toggle("active", parseInt(btn.dataset.days) === 30);
+  });
+
+  updateTaskChart(taskKey);
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function updateTaskChart(taskKey) {
+  const slice = getSlice(chartRanges.task);
+  const labels = slice.map(d => d.date.slice(5));
+  const values = slice.map(d => {
+    const v = d.tasks[taskKey];
+    if (v === "done") return 1;
+    if (v === "missed" || v === "partial") return 0;
+    return null;
+  });
+  const colors = slice.map(d => {
+    const v = d.tasks[taskKey];
+    if (v === "done") return "rgba(72,187,120,0.75)";
+    if (v === "missed") return "rgba(252,129,129,0.75)";
+    if (v === "partial") return "rgba(236,201,75,0.75)";
+    return "rgba(45,55,72,0.4)";
+  });
+
+  if (chartInstances.task) {
+    chartInstances.task.destroy();
+  }
+
+  chartInstances.task = new Chart(document.getElementById("taskChart"), {
     type: "bar",
     data: {
       labels,
       datasets: [{
-        label: "Sessions",
-        data: sessionVals,
-        backgroundColor: "rgba(72,187,120,0.6)",
-        borderColor: "#48bb78",
-        borderWidth: 1
+        label: "Done / Missed",
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 0,
+        borderRadius: 4
       }]
     },
     options: {
       ...chartDefaults,
+      plugins: { legend: { display: false } },
       scales: {
-        ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, min: 0, ticks: { color: "#718096", stepSize: 1 } }
+        x: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } },
+        y: {
+          min: 0, max: 1,
+          ticks: { color: "#718096", stepSize: 1, callback: v => v === 1 ? "Done" : v === 0 ? "Missed" : "" },
+          grid: { color: "#2d3748" }
+        }
       }
     }
   });
@@ -403,85 +439,54 @@ buildCharts();
 // ══════════════════════════════════════════════════════════════════════════════
 
 const TASKS = [
-  { id: "wake",   label: "Wake up",    icon: "☀️",  hour: 8,  min: 0  },
-  { id: "workout", label: "Workout",   icon: "💪",  hour: 13, min: 0  },
-  { id: "teeth",  label: "Brush teeth", icon: "🦷",  hour: 19, min: 0  },
+  { id: "wake",    label: "Wake up",     icon: "☀️", hour: 8,  min: 0 },
+  { id: "workout", label: "Workout",     icon: "💪", hour: 13, min: 0 },
+  { id: "teeth",   label: "Brush teeth", icon: "🦷", hour: 19, min: 0 },
 ];
 
 // localStorage key: 'taskLog'
-// Format: { "2026-04-30": { "workout": {confirmedAt: "13:04"}, ... }, ... }
+// Format: { "2026-04-30": { "workout": {confirmedAt: "13:04", confirmedAtMs: ...}, ... }, ... }
 
-function todayKey() {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
-}
-
-function getLog() {
-  try { return JSON.parse(localStorage.getItem('taskLog') || '{}'); }
-  catch { return {}; }
-}
-
-function saveLog(log) {
-  localStorage.setItem('taskLog', JSON.stringify(log));
-}
-
-function isConfirmedToday(taskId) {
-  const log = getLog();
-  return !!(log[todayKey()] && log[todayKey()][taskId]);
-}
+function todayKey() { return new Date().toISOString().slice(0, 10); }
+function getLog() { try { return JSON.parse(localStorage.getItem('taskLog') || '{}'); } catch { return {}; } }
+function saveLog(log) { localStorage.setItem('taskLog', JSON.stringify(log)); }
+function isConfirmedToday(id) { const log = getLog(); return !!(log[todayKey()] && log[todayKey()][id]); }
 
 function confirmTask() {
   const active = getActiveTask();
   if (!active) return;
-  const log = getLog();
-  const key = todayKey();
+  const log = getLog(), key = todayKey(), now = new Date();
   if (!log[key]) log[key] = {};
-  const now = new Date();
-  log[key][active.id] = {
-    confirmedAt: now.toTimeString().slice(0, 5),
-    confirmedAtMs: now.getTime()
-  };
+  log[key][active.id] = { confirmedAt: now.toTimeString().slice(0,5), confirmedAtMs: now.getTime() };
   saveLog(log);
   renderBar();
 }
 
 function getActiveTask() {
-  // The most recently past task that hasn't been confirmed yet
-  const now = new Date();
-  const todayMinutes = now.getHours() * 60 + now.getMinutes();
+  const now = new Date(), todayMin = now.getHours()*60 + now.getMinutes();
   let active = null;
   for (const task of TASKS) {
-    const taskMinutes = task.hour * 60 + task.min;
-    if (taskMinutes <= todayMinutes) {
-      if (!isConfirmedToday(task.id)) active = task;
-      else active = null; // confirmed — don't show, look for next unconfirmed
+    if (task.hour*60 + task.min <= todayMin) {
+      active = isConfirmedToday(task.id) ? null : task;
     }
   }
   return active;
 }
 
 function getNextTask() {
-  const now = new Date();
-  const todayMinutes = now.getHours() * 60 + now.getMinutes();
-  for (const task of TASKS) {
-    const taskMinutes = task.hour * 60 + task.min;
-    if (taskMinutes > todayMinutes) return task;
-  }
-  return null;
+  const now = new Date(), todayMin = now.getHours()*60 + now.getMinutes();
+  return TASKS.find(t => t.hour*60 + t.min > todayMin) || null;
 }
 
 function formatTime(h, m) {
-  const period = h >= 12 ? 'PM' : 'AM';
-  const hour = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${hour}:${m.toString().padStart(2,'0')} ${period}`;
+  const p = h>=12?'PM':'AM', hr = h>12?h-12:h===0?12:h;
+  return `${hr}:${m.toString().padStart(2,'0')} ${p}`;
 }
 
 function renderBar() {
-  const active = getActiveTask();
-  const next = getNextTask();
+  const active = getActiveTask(), next = getNextTask();
   const widget = document.getElementById('reminder-widget');
   const btn = document.getElementById('widget-confirm');
-
   if (active) {
     widget.className = 'active';
     document.getElementById('w-icon').textContent = active.icon;
@@ -495,50 +500,33 @@ function renderBar() {
     document.getElementById('w-time').textContent = '';
     btn.style.display = 'none';
   }
-
   const nextEl = document.getElementById('widget-next');
-  if (next) {
-    nextEl.textContent = `Next: ${next.icon} ${next.label} · ${formatTime(next.hour, next.min)}`;
-  } else {
-    nextEl.textContent = 'No more tasks today';
-  }
+  nextEl.textContent = next ? `Next: ${next.icon} ${next.label} · ${formatTime(next.hour, next.min)}` : 'No more tasks today';
 }
 
-// Bell sound using Web Audio API (no external file needed)
 function playBell() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
     osc.type = 'sine';
     osc.frequency.setValueAtTime(880, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.4);
     gain.gain.setValueAtTime(0.4, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 1.2);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 1.2);
   } catch(e) {}
 }
 
 let _lastFiredTask = null;
-
 function checkAndFire() {
   const active = getActiveTask();
-  if (active && active.id !== _lastFiredTask) {
-    _lastFiredTask = active.id;
-    playBell();
-  }
+  if (active && active.id !== _lastFiredTask) { _lastFiredTask = active.id; playBell(); }
   renderBar();
 }
 
-function initReminders() {
-  renderBar();
-  setInterval(checkAndFire, 30000);
-}
-
-initReminders();
+renderBar();
+setInterval(checkAndFire, 30000);
 </script>
 
 </body>
