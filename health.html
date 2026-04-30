@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ash Health Tracker — Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+
+    /* ── Reminder Widget (floating top-right) ───────────────────── */
+    #reminder-widget {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
+      width: 172px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      transition: border-color 0.3s;
+    }
+    #reminder-widget.active  { border-color: #276749; }
+    #reminder-widget.allgood { border-color: #2d3748; }
+    #widget-task {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    #widget-task .w-icon { font-size: 0.95rem; }
+    #widget-task .w-time { font-size: 0.75rem; color: #718096; font-weight: 400; }
+    #widget-next {
+      font-size: 0.72rem;
+      color: #4a5568;
+      text-align: center;
+    }
+    #widget-confirm {
+      background: #276749;
+      color: #f7fafc;
+      border: none;
+      border-radius: 8px;
+      padding: 5px 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+    }
+    #widget-confirm:hover { background: #2f855a; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: #f7fafc; }
+    .subtitle { color: #718096; font-size: 0.875rem; margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; }
+    .card .label { font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .card .value { font-size: 2rem; font-weight: 700; color: #f7fafc; line-height: 1.1; }
+    .card .sub { font-size: 0.8rem; color: #4a5568; margin-top: 6px; }
+    .green { color: #48bb78 !important; }
+    .red { color: #fc8181 !important; }
+    .yellow { color: #ecc94b !important; }
+    .muted { color: #718096 !important; }
+    .chart-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .chart-card h2 { font-size: 1rem; font-weight: 600; color: #a0aec0; margin-bottom: 16px; }
+    .chart-wrap { position: relative; height: 240px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 10px 12px; color: #718096; font-weight: 500; border-bottom: 1px solid #2d3748; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 10px 12px; border-bottom: 1px solid #1e2533; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+    .badge-green { background: #1c4532; color: #48bb78; }
+    .badge-red { background: #3d1f1f; color: #fc8181; }
+    .badge-yellow { background: #3d3419; color: #ecc94b; }
+    .badge-gray { background: #2d3748; color: #718096; }
+    .streak-bar { display: flex; gap: 4px; align-items: center; }
+    .streak-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-green { background: #48bb78; }
+    .dot-red { background: #fc8181; }
+    .dot-gray { background: #2d3748; }
+    .dot-yellow { background: #ecc94b; }
+    .section-note { font-size: 0.8rem; color: #4a5568; margin-bottom: 16px; font-style: italic; }
+    footer { color: #4a5568; font-size: 0.75rem; margin-top: 16px; text-align: center; }
+    @media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+<!-- ── Reminder Widget ──────────────────────────────────────── -->
+<div id="reminder-widget">
+  <div id="widget-task">
+    <span class="w-icon" id="w-icon">⏳</span>
+    <span id="w-label">Loading...</span>
+    <span class="w-time" id="w-time"></span>
+  </div>
+  <div id="widget-next"></div>
+  <button id="widget-confirm" onclick="confirmTask()" style="display:none">✓ Done</button>
+</div>
+
+<h1>📊 Will's Health & Routine Tracker</h1>
+<p class="subtitle">Daily habits, streaks, and patterns — tracking since April 2026</p>
+
+<div class="grid" id="statCards">
+  <!-- Populated by JS -->
+</div>
+
+<div class="chart-card">
+  <h2>30-Day Task Completion</h2>
+  <p class="section-note">Percentage of trackable tasks completed each day</p>
+  <div class="chart-wrap"><canvas id="completionChart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <h2>Wake Time</h2>
+  <p class="section-note">Time out of bed each morning</p>
+  <div class="chart-wrap"><canvas id="wakeChart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <h2>Sessions Per Day</h2>
+  <p class="section-note">Work sessions completed (trading, AI, projects)</p>
+  <div class="chart-wrap"><canvas id="sessionsChart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <h2>Recent Days</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Wake</th>
+        <th>Sessions</th>
+        <th>Curls</th>
+        <th>Teeth</th>
+        <th>TRT</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="dailyTable">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<footer>Ash Health Tracker · Updated daily at 5 PM review · Data starts April 29, 2026</footer>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+// Each entry mirrors the daily JSON schema.
+// Add new days here as they accumulate — oldest first.
+const dailyData = [
+  {
+    date: "2026-04-29",
+    wakeTime: null,
+    sessions: null,
+    tasks: { curls: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed" },
+    health: { energy: null, symptoms: "sick", mood: null },
+    productivity: null,
+    notes: "Sick day. Still got curls — streak 5."
+  },
+  {
+    date: "2026-04-30",
+    wakeTime: null,
+    sessions: null,
+    tasks: { curls: null, brushTeeth: null, testosteroneShot: null, instacart: "na", financialForecast: null },
+    health: { energy: null, symptoms: null, mood: null },
+    productivity: null,
+    notes: null
+  }
+];
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function taskDot(status) {
+  if (status === "done") return `<span class="streak-dot dot-green" title="done"></span>`;
+  if (status === "missed") return `<span class="streak-dot dot-red" title="missed"></span>`;
+  if (status === "partial") return `<span class="streak-dot dot-yellow" title="partial"></span>`;
+  if (status === "na") return `<span class="streak-dot dot-gray" title="n/a"></span>`;
+  return `<span class="streak-dot dot-gray" title="pending"></span>`;
+}
+
+function taskBadge(status) {
+  if (status === "done") return `<span class="badge badge-green">✓</span>`;
+  if (status === "missed") return `<span class="badge badge-red">✗</span>`;
+  if (status === "partial") return `<span class="badge badge-yellow">~</span>`;
+  if (status === "na") return `<span class="badge badge-gray">—</span>`;
+  return `<span class="badge badge-gray">?</span>`;
+}
+
+function completionPct(day) {
+  const trackable = Object.entries(day.tasks).filter(([,v]) => v !== "na" && v !== null);
+  if (trackable.length === 0) return null;
+  const done = trackable.filter(([,v]) => v === "done").length;
+  return Math.round((done / trackable.length) * 100);
+}
+
+function wakeToDecimal(t) {
+  if (!t) return null;
+  const [h, m] = t.split(":").map(Number);
+  return h + m / 60;
+}
+
+function formatWake(t) { return t || "—"; }
+
+// ─── STAT CARDS ──────────────────────────────────────────────────────────────
+function buildStatCards() {
+  // Curls streak
+  let curlsStreak = 0;
+  for (let i = dailyData.length - 1; i >= 0; i--) {
+    const s = dailyData[i].tasks.curls;
+    if (s === "done") curlsStreak++;
+    else if (s === "missed" || s === "partial") break;
+  }
+
+  // Teeth streak
+  let teethStreak = 0;
+  for (let i = dailyData.length - 1; i >= 0; i--) {
+    const s = dailyData[i].tasks.brushTeeth;
+    if (s === "done") teethStreak++;
+    else if (s === "missed" || s === "partial") break;
+  }
+
+  // Days tracked
+  const daysTracked = dailyData.filter(d => Object.values(d.tasks).some(v => v !== null)).length;
+
+  // Avg completion (last 7 days)
+  const recent = dailyData.slice(-7).map(completionPct).filter(v => v !== null);
+  const avgCompletion = recent.length ? Math.round(recent.reduce((a,b) => a+b,0) / recent.length) : null;
+
+  const cards = [
+    {
+      label: "Curls Streak",
+      value: curlsStreak + " days",
+      sub: "consecutive",
+      cls: curlsStreak >= 3 ? "green" : curlsStreak > 0 ? "yellow" : "red"
+    },
+    {
+      label: "Teeth Streak",
+      value: teethStreak > 0 ? teethStreak + " days" : "0",
+      sub: teethStreak === 0 ? "needs attention" : "consecutive",
+      cls: teethStreak >= 3 ? "green" : teethStreak > 0 ? "yellow" : "red"
+    },
+    {
+      label: "Avg Completion",
+      value: avgCompletion !== null ? avgCompletion + "%" : "—",
+      sub: "last 7 days",
+      cls: avgCompletion >= 80 ? "green" : avgCompletion >= 50 ? "yellow" : "red"
+    },
+    {
+      label: "Days Tracked",
+      value: daysTracked,
+      sub: "since Apr 29",
+      cls: ""
+    }
+  ];
+
+  document.getElementById("statCards").innerHTML = cards.map(c => `
+    <div class="card">
+      <div class="label">${c.label}</div>
+      <div class="value ${c.cls}">${c.value}</div>
+      <div class="sub">${c.sub}</div>
+    </div>
+  `).join("");
+}
+
+// ─── DAILY TABLE ─────────────────────────────────────────────────────────────
+function buildDailyTable() {
+  const rows = [...dailyData].reverse().map(d => `
+    <tr>
+      <td>${d.date}</td>
+      <td>${formatWake(d.wakeTime)}</td>
+      <td>${d.sessions !== null ? d.sessions : "—"}</td>
+      <td>${taskBadge(d.tasks.curls)}</td>
+      <td>${taskBadge(d.tasks.brushTeeth)}</td>
+      <td>${taskBadge(d.tasks.testosteroneShot)}</td>
+      <td style="color:#718096; font-size:0.8rem;">${d.notes || "—"}</td>
+    </tr>
+  `).join("");
+  document.getElementById("dailyTable").innerHTML = rows;
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────────────────────
+function buildCharts() {
+  const labels = dailyData.map(d => d.date.slice(5)); // MM-DD
+  const completions = dailyData.map(completionPct);
+  const wakeVals = dailyData.map(d => wakeToDecimal(d.wakeTime));
+  const sessionVals = dailyData.map(d => d.sessions);
+
+  const chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: "#a0aec0" } } },
+    scales: {
+      x: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } },
+      y: { ticks: { color: "#718096" }, grid: { color: "#2d3748" } }
+    }
+  };
+
+  // Completion chart
+  new Chart(document.getElementById("completionChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "% Tasks Done",
+        data: completions,
+        borderColor: "#667eea",
+        backgroundColor: "rgba(102,126,234,0.1)",
+        tension: 0.3,
+        pointRadius: 5,
+        spanGaps: true
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      scales: {
+        ...chartDefaults.scales,
+        y: { ...chartDefaults.scales.y, min: 0, max: 100, ticks: { color: "#718096", callback: v => v + "%" } }
+      }
+    }
+  });
+
+  // Wake time chart
+  new Chart(document.getElementById("wakeChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Wake Time (hour)",
+        data: wakeVals,
+        borderColor: "#ecc94b",
+        backgroundColor: "rgba(236,201,75,0.1)",
+        tension: 0.3,
+        pointRadius: 5,
+        spanGaps: false
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      scales: {
+        ...chartDefaults.scales,
+        y: {
+          ...chartDefaults.scales.y,
+          min: 5, max: 12,
+          ticks: {
+            color: "#718096",
+            callback: v => {
+              const h = Math.floor(v);
+              const m = Math.round((v - h) * 60);
+              return `${h}:${m.toString().padStart(2,"0")}`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Sessions chart
+  new Chart(document.getElementById("sessionsChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Sessions",
+        data: sessionVals,
+        backgroundColor: "rgba(72,187,120,0.6)",
+        borderColor: "#48bb78",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      scales: {
+        ...chartDefaults.scales,
+        y: { ...chartDefaults.scales.y, min: 0, ticks: { color: "#718096", stepSize: 1 } }
+      }
+    }
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+buildStatCards();
+buildDailyTable();
+buildCharts();
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// REMINDER SYSTEM
+// ══════════════════════════════════════════════════════════════════════════════
+
+const TASKS = [
+  { id: "wake",   label: "Wake up",    icon: "☀️",  hour: 8,  min: 0  },
+  { id: "curls",  label: "Curls",       icon: "💪",  hour: 13, min: 0  },
+  { id: "teeth",  label: "Brush teeth", icon: "🦷",  hour: 19, min: 0  },
+];
+
+// localStorage key: 'taskLog'
+// Format: { "2026-04-30": { "curls": {confirmedAt: "13:04"}, ... }, ... }
+
+function todayKey() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+function getLog() {
+  try { return JSON.parse(localStorage.getItem('taskLog') || '{}'); }
+  catch { return {}; }
+}
+
+function saveLog(log) {
+  localStorage.setItem('taskLog', JSON.stringify(log));
+}
+
+function isConfirmedToday(taskId) {
+  const log = getLog();
+  return !!(log[todayKey()] && log[todayKey()][taskId]);
+}
+
+function confirmTask() {
+  const active = getActiveTask();
+  if (!active) return;
+  const log = getLog();
+  const key = todayKey();
+  if (!log[key]) log[key] = {};
+  const now = new Date();
+  log[key][active.id] = {
+    confirmedAt: now.toTimeString().slice(0, 5),
+    confirmedAtMs: now.getTime()
+  };
+  saveLog(log);
+  renderBar();
+}
+
+function getActiveTask() {
+  // The most recently past task that hasn't been confirmed yet
+  const now = new Date();
+  const todayMinutes = now.getHours() * 60 + now.getMinutes();
+  let active = null;
+  for (const task of TASKS) {
+    const taskMinutes = task.hour * 60 + task.min;
+    if (taskMinutes <= todayMinutes) {
+      if (!isConfirmedToday(task.id)) active = task;
+      else active = null; // confirmed — don't show, look for next unconfirmed
+    }
+  }
+  return active;
+}
+
+function getNextTask() {
+  const now = new Date();
+  const todayMinutes = now.getHours() * 60 + now.getMinutes();
+  for (const task of TASKS) {
+    const taskMinutes = task.hour * 60 + task.min;
+    if (taskMinutes > todayMinutes) return task;
+  }
+  return null;
+}
+
+function formatTime(h, m) {
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${hour}:${m.toString().padStart(2,'0')} ${period}`;
+}
+
+function renderBar() {
+  const active = getActiveTask();
+  const next = getNextTask();
+  const widget = document.getElementById('reminder-widget');
+  const btn = document.getElementById('widget-confirm');
+
+  if (active) {
+    widget.className = 'active';
+    document.getElementById('w-icon').textContent = active.icon;
+    document.getElementById('w-label').textContent = active.label;
+    document.getElementById('w-time').textContent = formatTime(active.hour, active.min);
+    btn.style.display = 'block';
+  } else {
+    widget.className = 'allgood';
+    document.getElementById('w-icon').textContent = '✅';
+    document.getElementById('w-label').textContent = 'All caught up';
+    document.getElementById('w-time').textContent = '';
+    btn.style.display = 'none';
+  }
+
+  const nextEl = document.getElementById('widget-next');
+  if (next) {
+    nextEl.textContent = `Next: ${next.icon} ${next.label} · ${formatTime(next.hour, next.min)}`;
+  } else {
+    nextEl.textContent = 'No more tasks today';
+  }
+}
+
+// Bell sound using Web Audio API (no external file needed)
+function playBell() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 1.2);
+  } catch(e) {}
+}
+
+let _lastFiredTask = null;
+
+function checkAndFire() {
+  const active = getActiveTask();
+  if (active && active.id !== _lastFiredTask) {
+    _lastFiredTask = active.id;
+    playBell();
+  }
+  renderBar();
+}
+
+function initReminders() {
+  renderBar();
+  setInterval(checkAndFire, 30000);
+}
+
+initReminders();
+</script>
+
+</body>
+</html>
