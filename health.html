@@ -138,7 +138,7 @@
         <th>Date</th>
         <th>Wake</th>
         <th>Sessions</th>
-        <th>Curls</th>
+        <th>Workout</th>
         <th>Teeth</th>
         <th>TRT</th>
         <th>Notes</th>
@@ -236,7 +236,7 @@ function buildStatCards() {
 
   const cards = [
     {
-      label: "Curls Streak",
+      label: "Workout Streak",
       value: curlsStreak + " days",
       sub: "consecutive",
       cls: curlsStreak >= 3 ? "green" : curlsStreak > 0 ? "yellow" : "red"
@@ -398,7 +398,7 @@ buildCharts();
 
 const TASKS = [
   { id: "wake",   label: "Wake up",    icon: "☀️",  hour: 8,  min: 0  },
-  { id: "curls",  label: "Curls",       icon: "💪",  hour: 13, min: 0  },
+  { id: "curls",  label: "Workout",     icon: "💪",  hour: 13, min: 0  },
   { id: "teeth",  label: "Brush teeth", icon: "🦷",  hour: 19, min: 0  },
 ];
 
