@@ -43,18 +43,10 @@
       padding: 24px; margin-bottom: 24px; position: relative;
       transition: border-color 0.15s, opacity 0.15s;
     }
-    .chart-card.dragging { opacity: 0.35; border-color: #667eea; }
-    .chart-card.drag-over-top    { border-top: 2px solid #667eea; }
-    .chart-card.drag-over-bottom { border-bottom: 2px solid #667eea; }
+
 
     .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-    .drag-handle {
-      cursor: grab; padding: 2px 6px 2px 0; color: #2d3748;
-      font-size: 1rem; line-height: 1; user-select: none; flex-shrink: 0;
-      transition: color 0.15s;
-    }
-    .drag-handle:hover { color: #4a5568; }
-    .chart-card:active .drag-handle { cursor: grabbing; }
+
     .chart-header-left { flex: 1; min-width: 0; }
     .chart-header-left h2 { font-size: 1rem; font-weight: 600; color: #a0aec0; margin-bottom: 4px; }
     .section-note { font-size: 0.8rem; color: #4a5568; font-style: italic; }
@@ -108,7 +100,7 @@
 
   <div class="chart-card" id="card-completion" draggable="true">
     <div class="chart-header">
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
+
       <div class="chart-header-left">
         <h2>Task Completion</h2>
         <p class="section-note">Percentage of trackable tasks completed each day</p>
@@ -126,7 +118,7 @@
 
   <div class="chart-card" id="card-table" draggable="true">
     <div class="chart-header" style="margin-bottom:16px;">
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
+
       <div class="chart-header-left">
         <h2 style="font-size:1rem; font-weight:600; color:#a0aec0;">Recent Days</h2>
         <p class="section-note">Click a column header to add a compliance chart</p>
@@ -372,7 +364,7 @@ function addTaskChart(key, label) {
   card.draggable = true;
   card.innerHTML = `
     <div class="chart-header">
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
+
       <div class="chart-header-left">
         <h2 style="color:#667eea">${label} — Compliance</h2>
         <p class="section-note">Done / Missed per day</p>
@@ -443,73 +435,20 @@ function buildTaskChart(key, canvasId, days) {
   });
 }
 
-// ─── DRAG TO REORDER ──────────────────────────────────────────────────────────
-let dragSrc = null;
-
-function initDragOnCard(card) {
-  let allowDrag = false;
-  card.addEventListener("mousedown", e => {
-    allowDrag = e.target.tagName !== "BUTTON" && e.target.tagName !== "CANVAS" && e.target.tagName !== "TH" && e.target.tagName !== "TD" && e.target.tagName !== "INPUT";
-  });
-  card.addEventListener("dragstart", e => {
-    if (!allowDrag) { e.preventDefault(); return; }
-    dragSrc = card;
-    e.dataTransfer.effectAllowed = "move";
-    setTimeout(() => card.classList.add("dragging"), 0);
-  });
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-    document.querySelectorAll(".chart-card").forEach(c=>{ c.classList.remove("drag-over-top","drag-over-bottom"); });
-    dragSrc = null;
-    saveDashboardState();
-  });
-  card.addEventListener("dragover", e => {
-    if (!dragSrc || dragSrc === card) return;
-    e.preventDefault();
-    const rect = card.getBoundingClientRect();
-    const isTop = e.clientY < rect.top + rect.height/2;
-    card.classList.toggle("drag-over-top", isTop);
-    card.classList.toggle("drag-over-bottom", !isTop);
-  });
-  card.addEventListener("dragleave", () => {
-    card.classList.remove("drag-over-top","drag-over-bottom");
-  });
-  card.addEventListener("drop", e => {
-    if (!dragSrc || dragSrc === card) return;
-    e.preventDefault();
-    card.classList.remove("drag-over-top","drag-over-bottom");
-    const rect = card.getBoundingClientRect();
-    const isTop = e.clientY < rect.top + rect.height/2;
-    const dashboard = document.getElementById("dashboard");
-    if (isTop) dashboard.insertBefore(dragSrc, card);
-    else dashboard.insertBefore(dragSrc, card.nextSibling);
-  });
-}
-
-function initDragDrop() {
-  document.querySelectorAll("#dashboard > .chart-card").forEach(initDragOnCard);
-}
+function initDragOnCard(card) {}
+function initDragDrop() {}
 
 // ─── DASHBOARD STATE (localStorage) ──────────────────────────────────────────
 function saveDashboardState() {
-  const cards = [...document.querySelectorAll("#dashboard > .chart-card")];
-  const order = cards.map(c => c.id);
   const openTasks = [...taskChartMap.keys()];
   const openSeries = [...seriesChartMap.keys()];
-  localStorage.setItem("dashboardState", JSON.stringify({ order, openTasks, openSeries }));
+  localStorage.setItem("dashboardState", JSON.stringify({ openTasks, openSeries }));
 }
 
 function loadDashboardState() {
   try {
     const state = JSON.parse(localStorage.getItem("dashboardState") || "{}");
-    const { order=[], openTasks=[] } = state;
-
-    // Restore card order
-    const dashboard = document.getElementById("dashboard");
-    order.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) dashboard.appendChild(el);
-    });
+    const { openTasks=[] } = state;
 
     // Restore open series charts
     const openSeries = state.openSeries || [];
