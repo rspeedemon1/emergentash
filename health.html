@@ -526,15 +526,19 @@ function getOverdueTasks() {
   });
 }
 function getActiveTask() {
+  // Returns the EARLIEST unconfirmed task whose start time has passed (and hasn't expired)
+  // Tasks past their deadline fall to getOverdueTasks() instead
   const now=new Date(),m=now.getHours()*60+now.getMinutes(),dow=now.getDay();
-  let active=null;
   for(const t of TASKS) {
     if(t.daysOnly && !t.daysOnly.includes(dow)) continue;
     if(isConfirmedToday(t.id)) continue;
     if(isOverdue(t)) continue;
-    if(t.hour*60+t.min<=m) active=t;
+    // Only show if start time has passed AND end time hasn't (or no deadline)
+    const started = t.hour*60+t.min <= m;
+    const notYetStarted = t.hour*60+t.min > m;
+    if(started) return t; // first match wins (earliest unconfirmed due task)
   }
-  return active;
+  return null;
 }
 function getNextTask() {
   const now=new Date(),m=now.getHours()*60+now.getMinutes(),dow=now.getDay();
