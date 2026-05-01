@@ -162,6 +162,12 @@ const dailyData = [
     tasks: { workout: "missed", brushTeeth: "done", testosteroneShot: "done", instacart: "na", financialForecast: null, email: "na", admin: "na" },
     health: { energy: null, symptoms: null, mood: null }, productivity: null,
     notes: "Project consolidation day. Routine-management restructured. First real daily log entry."
+  },
+  {
+    date: "2026-05-01", wakeTime: "08:30", sessions: 4,
+    tasks: { workout: "missed", brushTeeth: null, testosteroneShot: null, instacart: "na", financialForecast: "overdue", email: "missed", admin: "missed" },
+    health: { energy: null, symptoms: null, mood: null }, productivity: null,
+    notes: "Rest day. Email + Admin first Friday on tracker — missed, trying Monday. Financial forecast still overdue."
   }
 ];
 
@@ -489,6 +495,8 @@ loadDashboardState();
 const TASKS = [
   { id:"wake",    label:"Wake up",     icon:"☀️", hour:8,  min:0 },
   { id:"workout", label:"Workout",     icon:"💪", hour:13, min:0 },
+  { id:"email",   label:"Email Review",icon:"📬", hour:13, min:0,  daysOnly:[1,3,5] },
+  { id:"admin",   label:"Admin Block", icon:"📋", hour:13, min:30, daysOnly:[1,3,5] },
   { id:"teeth",   label:"Brush teeth", icon:"🦷", hour:19, min:0 },
 ];
 
@@ -506,9 +514,12 @@ function confirmTask() {
 }
 
 function getActiveTask() {
-  const now=new Date(),m=now.getHours()*60+now.getMinutes();
+  const now=new Date(),m=now.getHours()*60+now.getMinutes(),dow=now.getDay();
   let active=null;
-  for(const t of TASKS) { if(t.hour*60+t.min<=m) active=isConfirmedToday(t.id)?null:t; }
+  for(const t of TASKS) {
+    if(t.daysOnly && !t.daysOnly.includes(dow)) continue;
+    if(t.hour*60+t.min<=m) active=isConfirmedToday(t.id)?null:t;
+  }
   return active;
 }
 function getNextTask() {
