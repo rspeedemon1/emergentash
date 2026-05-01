@@ -221,7 +221,6 @@ function buildDailyTable() {
   document.getElementById("dailyTable").innerHTML = [...dailyData].reverse().map(d=>`
     <tr>
       <td>${d.date}</td><td>${formatWake(d.wakeTime)}</td>
-      <td>${formatWake(d.wakeTime)}</td>
       <td>${d.sessions!==null?d.sessions:"—"}</td>
       <td>${taskBadge(d.tasks.workout)}</td>
       <td>${taskBadge(d.tasks.brushTeeth)}</td>
