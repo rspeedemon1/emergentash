@@ -133,6 +133,8 @@
           <th class="clickable" data-task="workout" data-label="Workout" onclick="toggleTaskChart(this)">Workout ↗</th>
           <th class="clickable" data-task="brushTeeth" data-label="Brush Teeth" onclick="toggleTaskChart(this)">Teeth ↗</th>
           <th class="clickable" data-task="testosteroneShot" data-label="TRT" onclick="toggleTaskChart(this)">TRT ↗</th>
+          <th class="clickable" data-task="email" data-label="Email Review" onclick="toggleTaskChart(this)">Email ↗</th>
+          <th class="clickable" data-task="admin" data-label="Admin Block" onclick="toggleTaskChart(this)">Admin ↗</th>
           <th>Notes</th>
         </tr>
       </thead>
@@ -151,13 +153,13 @@
 const dailyData = [
   {
     date: "2026-04-29", wakeTime: null, sessions: null,
-    tasks: { workout: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed" },
+    tasks: { workout: "done", brushTeeth: "missed", testosteroneShot: "na", instacart: "na", financialForecast: "missed", email: "na", admin: "na" },
     health: { energy: null, symptoms: "sick", mood: null }, productivity: null,
     notes: "Sick day. Still got workout — streak 5."
   },
   {
     date: "2026-04-30", wakeTime: "09:30", sessions: 3,
-    tasks: { workout: "missed", brushTeeth: "done", testosteroneShot: "done", instacart: "na", financialForecast: null },
+    tasks: { workout: "missed", brushTeeth: "done", testosteroneShot: "done", instacart: "na", financialForecast: null, email: "na", admin: "na" },
     health: { energy: null, symptoms: null, mood: null }, productivity: null,
     notes: "Project consolidation day. Routine-management restructured. First real daily log entry."
   }
@@ -225,6 +227,8 @@ function buildDailyTable() {
       <td>${taskBadge(d.tasks.workout)}</td>
       <td>${taskBadge(d.tasks.brushTeeth)}</td>
       <td>${taskBadge(d.tasks.testosteroneShot)}</td>
+      <td>${taskBadge(d.tasks.email)}</td>
+      <td>${taskBadge(d.tasks.admin)}</td>
       <td style="color:#718096;font-size:0.8rem;">${d.notes||"—"}</td>
     </tr>`).join("");
 }
