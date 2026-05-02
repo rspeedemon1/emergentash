@@ -38,25 +38,25 @@
 <body>
 
 <h1>🌤 Ash Weather Loop</h1>
-<p class="subtitle">Orlando, FL · High temperature predictions · Generated 2026-05-01</p>
+<p class="subtitle">Orlando, FL · High temperature predictions · Generated 2026-05-02</p>
 
 <div class="grid">
   <div class="card">
     <div class="label">Model MAE</div>
-    <div class="value green">3.87°F</div>
-    <div class="sub">Training (1579 samples)</div>
+    <div class="value ">—</div>
+    <div class="sub">Mean absolute error</div>
   </div>
   <div class="card">
     <div class="label">Persistence MAE</div>
-    <div class="value">3.41°F</div>
+    <div class="value">—</div>
     <div class="sub">Baseline: tomorrow = today</div>
   </div>
   <div class="card">
     <div class="label">Beat Baseline</div>
-    <div class="value red">
-      ❌ No
+    <div class="value ">
+      —
     </div>
-    <div class="sub">13 live predictions scored</div>
+    <div class="sub">14 live predictions scored</div>
   </div>
   <div class="card">
     <div class="label">Next Prediction</div>
@@ -65,7 +65,7 @@
   </div>
   <div class="card">
     <div class="label">Training Data</div>
-    <div class="value">1580</div>
+    <div class="value">1</div>
     <div class="sub">Days of weather history</div>
   </div>
 </div>
@@ -103,9 +103,9 @@
       <tr>
         <td>2026-04-30</td>
         <td>93.3°F</td>
-        <td><span class="pending">awaiting actual</span></td>
-        <td class="">—</td>
-        <td><span class="badge badge-gray">Pending</span></td>
+        <td>86.72°F</td>
+        <td class="neg">-6.6°F</td>
+        <td><span class="badge badge-green">Scored</span></td>
       </tr>
       <tr>
         <td>2026-04-29</td>
@@ -225,130 +225,13 @@
     </thead>
     <tbody>
       <tr>
-        <td>2026-05-01</td>
-        <td>92.1°F</td>
-        <td>89.42°F</td>
-        <td>52</td>
-        <td>0</td>
-        <td>10.36</td>
-        <td>1009</td>
-      </tr>
-      <tr>
-        <td>2026-04-29</td>
-        <td>91.76°F</td>
-        <td>87.75°F</td>
-        <td>53</td>
-        <td>20</td>
-        <td>5.01</td>
-        <td>1011</td>
-      </tr>
-      <tr>
-        <td>2026-04-28</td>
-        <td>86.11°F</td>
-        <td>80.87°F</td>
-        <td>63</td>
-        <td>0</td>
-        <td>17.27</td>
-        <td>1018</td>
-      </tr>
-      <tr>
-        <td>2026-04-27</td>
-        <td>82.36°F</td>
-        <td>75.88°F</td>
-        <td>70</td>
-        <td>0</td>
-        <td>19.57</td>
-        <td>1017</td>
-      </tr>
-      <tr>
-        <td>2026-04-26</td>
-        <td>89.87°F</td>
-        <td>85.89°F</td>
-        <td>48</td>
-        <td>40</td>
-        <td>5.01</td>
-        <td>1009</td>
-      </tr>
-      <tr>
-        <td>2026-04-25</td>
-        <td>87.89°F</td>
-        <td>81.9°F</td>
-        <td>46</td>
-        <td>75</td>
-        <td>5.75</td>
-        <td>1009</td>
-      </tr>
-      <tr>
-        <td>2026-04-24</td>
-        <td>85.96°F</td>
-        <td>80.65°F</td>
-        <td>42</td>
-        <td>100</td>
-        <td>1.99</td>
-        <td>1011</td>
-      </tr>
-      <tr>
-        <td>2026-04-23</td>
-        <td>82.04°F</td>
-        <td>76.77°F</td>
-        <td>53</td>
-        <td>40</td>
-        <td>10.36</td>
-        <td>1015</td>
-      </tr>
-      <tr>
-        <td>2026-04-21</td>
-        <td>78.96°F</td>
-        <td>78.96°F</td>
-        <td>35</td>
-        <td>0</td>
-        <td>14.72</td>
-        <td>1023</td>
-      </tr>
-      <tr>
-        <td>2026-04-20</td>
-        <td>77.65°F</td>
-        <td>77.65°F</td>
-        <td>50</td>
-        <td>98</td>
-        <td>15.21</td>
-        <td>1020</td>
-      </tr>
-      <tr>
-        <td>2026-04-19</td>
-        <td>84.2°F</td>
-        <td>84.2°F</td>
-        <td>45</td>
-        <td>100</td>
-        <td>8.93</td>
-        <td>1014</td>
-      </tr>
-      <tr>
-        <td>2026-04-18</td>
-        <td>87.31°F</td>
-        <td>87.31°F</td>
-        <td>40</td>
-        <td>31</td>
-        <td>7.16</td>
-        <td>1014</td>
-      </tr>
-      <tr>
-        <td>2026-04-17</td>
-        <td>82.9°F</td>
-        <td>82.9°F</td>
-        <td>41</td>
-        <td>0</td>
-        <td>4.34</td>
-        <td>1015</td>
-      </tr>
-      <tr>
-        <td>2026-04-16</td>
-        <td>84.6°F</td>
-        <td>59.7°F</td>
+        <td>2026-04-30</td>
+        <td>86.72°F</td>
+        <td>69.98°F</td>
         <td>—</td>
         <td>—</td>
-        <td>5.0</td>
-        <td>1019.7</td>
+        <td>7.27</td>
+        <td>1011.6</td>
       </tr>
     </tbody>
   </table>
@@ -357,7 +240,7 @@
 <footer>Ash Weather Loop · Model: Linear Regression · Ground truth: meteostat/NOAA · Features: temp_max, temp_min, wind_speed, pressure, sin_day, cos_day</footer>
 
 <script>
-const chartData = {"labels": ["2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29"], "predicted": [88.6, 81.8, 88.7, 91.7, 91.2, 88.3, 83.2, 85.4, 89.5, 89.3, 91.4, 83.5, 87.5], "actual": [72.7, 83.59, 86.43, 87.31, 84.2, 77.65, 78.96, 85.96, 87.89, 89.87, 82.36, 86.11, 91.76], "errors": [-15.9, 1.8, -2.3, -4.4, -7.0, -10.6, -4.2, 0.6, -1.6, 0.6, -9.0, 2.6, 4.3]};
+const chartData = {"labels": ["2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30"], "predicted": [88.6, 81.8, 88.7, 91.7, 91.2, 88.3, 83.2, 85.4, 89.5, 89.3, 91.4, 83.5, 87.5, 93.3], "actual": [72.7, 83.59, 86.43, 87.31, 84.2, 77.65, 78.96, 85.96, 87.89, 89.87, 82.36, 86.11, 91.76, 86.72], "errors": [-15.9, 1.8, -2.3, -4.4, -7.0, -10.6, -4.2, 0.6, -1.6, 0.6, -9.0, 2.6, 4.3, -6.6]};
 
 if (chartData.labels.length > 0) {
   const ctx1 = document.getElementById('predChart').getContext('2d');
